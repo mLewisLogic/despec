@@ -118,6 +118,12 @@ mise run clean
 mise run deps-update
 ```
 
+### lefthook
+
+```bash
+lefthook run pre-commit --all-files
+```
+
 ## Project Structure
 
 ```

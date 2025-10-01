@@ -1,6 +1,6 @@
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { AtomicWriter } from "../../../src/shared/atomic-writer.js";
 
 const TEST_DIR = "/tmp/despec-atomic-writer-tests";
@@ -108,7 +108,9 @@ describe("AtomicWriter", () => {
     await fs.mkdir(readonlyDir);
     await fs.chmod(readonlyDir, 0o444);
 
-    const files = [{ path: path.join(readonlyDir, "fail.txt"), content: "content" }];
+    const files = [
+      { path: path.join(readonlyDir, "fail.txt"), content: "content" },
+    ];
 
     const result = await writer.writeFilesSafe(files);
 

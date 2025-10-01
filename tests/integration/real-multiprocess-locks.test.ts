@@ -1,8 +1,8 @@
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { type ChildProcess, spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { FileLock } from "../../src/shared/file-lock";
 import { getIterationCount } from "../utils/test-helpers";
 
@@ -35,7 +35,10 @@ describe("FileLock - Real Multi-Process Tests", () => {
   /**
    * Spawns a child process running bun with the specified script
    */
-  function spawnChildProcess(scriptPath: string, config: unknown): ChildProcess {
+  function spawnChildProcess(
+    scriptPath: string,
+    config: unknown,
+  ): ChildProcess {
     return spawn("bun", ["run", scriptPath], {
       env: {
         ...process.env,
@@ -77,7 +80,9 @@ describe("FileLock - Real Multi-Process Tests", () => {
             reject(new Error(`Failed to parse child output: ${stdout}`));
           }
         } else {
-          reject(new Error(`Child process exited with code ${code}: ${stderr}`));
+          reject(
+            new Error(`Child process exited with code ${code}: ${stderr}`),
+          );
         }
       });
 
@@ -103,14 +108,17 @@ describe("FileLock - Real Multi-Process Tests", () => {
     const promises: Promise<any>[] = [];
 
     for (let i = 0; i < numProcesses; i++) {
-      const child = spawnChildProcess(path.join(HELPERS_DIR, "child-lock-incrementer.ts"), {
-        resourcePath,
-        counterPath,
-        workerId: i,
-        iterations: iterationsPerProcess,
-        timeout: 10000,
-        retryInterval: 10,
-      });
+      const child = spawnChildProcess(
+        path.join(HELPERS_DIR, "child-lock-incrementer.ts"),
+        {
+          resourcePath,
+          counterPath,
+          workerId: i,
+          iterations: iterationsPerProcess,
+          timeout: 10000,
+          retryInterval: 10,
+        },
+      );
 
       children.push(child);
       promises.push(waitForChildProcess(child));
@@ -147,10 +155,12 @@ describe("FileLock - Real Multi-Process Tests", () => {
     const finalValue = parseInt(await fs.readFile(counterPath, "utf8"), 10);
 
     // Calculate statistics
-    const avgWaitDuration = waitDurations.reduce((a, b) => a + b, 0) / waitDurations.length;
+    const avgWaitDuration =
+      waitDurations.reduce((a, b) => a + b, 0) / waitDurations.length;
     const maxWaitDuration = Math.max(...waitDurations);
     const minWaitDuration = Math.min(...waitDurations);
-    const avgHoldDuration = holdDurations.reduce((a, b) => a + b, 0) / holdDurations.length;
+    const avgHoldDuration =
+      holdDurations.reduce((a, b) => a + b, 0) / holdDurations.length;
 
     console.log("\n=== Results ===");
     console.log(`Total operations attempted: ${totalOperations}`);
@@ -158,7 +168,9 @@ describe("FileLock - Real Multi-Process Tests", () => {
     console.log(`Failed operations: ${failedOperations}`);
     console.log(`Final counter value: ${finalValue}`);
     console.log(`Expected value: ${expectedTotal}`);
-    console.log(`Success rate: ${((finalValue / expectedTotal) * 100).toFixed(2)}%`);
+    console.log(
+      `Success rate: ${((finalValue / expectedTotal) * 100).toFixed(2)}%`,
+    );
     console.log(`Total duration: ${totalDuration.toFixed(2)}ms`);
     console.log(`Average wait duration: ${avgWaitDuration.toFixed(2)}ms`);
     console.log(`Min wait duration: ${minWaitDuration}ms`);
@@ -185,11 +197,14 @@ describe("FileLock - Real Multi-Process Tests", () => {
 
     // Step 1: Process A acquires lock
     console.log("Step 1: Process A acquires lock...");
-    const processA = spawnChildProcess(path.join(HELPERS_DIR, "child-lock-holder.ts"), {
-      resourcePath,
-      holdDuration: -1, // Hold forever
-      timeout: 5000,
-    });
+    const processA = spawnChildProcess(
+      path.join(HELPERS_DIR, "child-lock-holder.ts"),
+      {
+        resourcePath,
+        holdDuration: -1, // Hold forever
+        timeout: 5000,
+      },
+    );
 
     // Wait for Process A to acquire lock
     await new Promise<void>((resolve) => {
@@ -233,7 +248,9 @@ describe("FileLock - Real Multi-Process Tests", () => {
     });
 
     const acquireDuration = Date.now() - acquireStart;
-    console.log(`Process B acquired lock in ${acquireDuration}ms (should detect stale lock)`);
+    console.log(
+      `Process B acquired lock in ${acquireDuration}ms (should detect stale lock)`,
+    );
 
     // Verify lock cleanup worked
     const newLockExists = await fs
@@ -241,7 +258,9 @@ describe("FileLock - Real Multi-Process Tests", () => {
       .then(() => true)
       .catch(() => false);
     expect(newLockExists).toBe(true);
-    console.log("New lock directory exists (stale lock cleaned up successfully)");
+    console.log(
+      "New lock directory exists (stale lock cleaned up successfully)",
+    );
 
     // Release lock
     await lock.release(resourcePath);
@@ -273,12 +292,15 @@ describe("FileLock - Real Multi-Process Tests", () => {
     const promises: Promise<any>[] = [];
 
     for (let i = 0; i < numProcesses; i++) {
-      const child = spawnChildProcess(path.join(HELPERS_DIR, "child-lock-racer.ts"), {
-        resourcePath,
-        coordinationPath,
-        workerId: i,
-        timeout: 10000,
-      });
+      const child = spawnChildProcess(
+        path.join(HELPERS_DIR, "child-lock-racer.ts"),
+        {
+          resourcePath,
+          coordinationPath,
+          workerId: i,
+          timeout: 10000,
+        },
+      );
 
       children.push(child);
       promises.push(waitForChildProcess(child));
@@ -376,20 +398,26 @@ describe("FileLock - Real Multi-Process Tests", () => {
 
     for (let iteration = 0; iteration < numIterations; iteration++) {
       const resourcePath = path.join(TEST_DIR, `stress-lock-${iteration}`);
-      const counterPath = path.join(TEST_DIR, `stress-counter-${iteration}.txt`);
+      const counterPath = path.join(
+        TEST_DIR,
+        `stress-counter-${iteration}.txt`,
+      );
       const expectedTotal = numProcesses * iterationsPerProcess;
 
       // Spawn all child processes
       const promises: Promise<any>[] = [];
       for (let i = 0; i < numProcesses; i++) {
-        const child = spawnChildProcess(path.join(HELPERS_DIR, "child-lock-incrementer.ts"), {
-          resourcePath,
-          counterPath,
-          workerId: i,
-          iterations: iterationsPerProcess,
-          timeout: 10000,
-          retryInterval: 10,
-        });
+        const child = spawnChildProcess(
+          path.join(HELPERS_DIR, "child-lock-incrementer.ts"),
+          {
+            resourcePath,
+            counterPath,
+            workerId: i,
+            iterations: iterationsPerProcess,
+            timeout: 10000,
+            retryInterval: 10,
+          },
+        );
         promises.push(waitForChildProcess(child));
       }
 
@@ -418,7 +446,9 @@ describe("FileLock - Real Multi-Process Tests", () => {
     console.log(`Total iterations: ${numIterations}`);
     console.log(`Successful iterations: ${successCount}`);
     console.log(`Failed iterations: ${numIterations - successCount}`);
-    console.log(`Success rate: ${((successCount / numIterations) * 100).toFixed(1)}%`);
+    console.log(
+      `Success rate: ${((successCount / numIterations) * 100).toFixed(1)}%`,
+    );
 
     // CRITICAL ASSERTION: All iterations should succeed with real processes
     expect(successCount).toBe(numIterations);

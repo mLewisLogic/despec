@@ -50,7 +50,10 @@ async function main() {
     // Record acquisition order
     let order = 0;
     try {
-      const orderContent = await fs.readFile(`${config.coordinationPath}.order`, "utf8");
+      const orderContent = await fs.readFile(
+        `${config.coordinationPath}.order`,
+        "utf8",
+      );
       order = parseInt(orderContent, 10) || 0;
     } catch {
       // File doesn't exist yet

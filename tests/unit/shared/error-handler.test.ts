@@ -1,5 +1,9 @@
-import { describe, expect, test } from "vitest";
-import { ErrorCategory, ErrorHandler, ErrorSeverity } from "../../../src/shared/error-handler.js";
+import { describe, expect, test } from "bun:test";
+import {
+  ErrorCategory,
+  ErrorHandler,
+  ErrorSeverity,
+} from "../../../src/shared/error-handler.js";
 
 describe("ErrorHandler", () => {
   const handler = new ErrorHandler();
@@ -304,7 +308,11 @@ describe("ErrorHandler", () => {
 
     test("includes cause when provided", () => {
       const cause = new Error("ENOENT");
-      const error = handler.createFileSystemError("write", "/path/to/file.txt", cause);
+      const error = handler.createFileSystemError(
+        "write",
+        "/path/to/file.txt",
+        cause,
+      );
 
       expect(error.cause).toBe(cause);
     });
@@ -329,7 +337,10 @@ describe("ErrorHandler", () => {
 
   describe("createValidationError", () => {
     test("creates validation error with context", () => {
-      const error = handler.createValidationError("username", "must be alphanumeric");
+      const error = handler.createValidationError(
+        "username",
+        "must be alphanumeric",
+      );
 
       expect(error.message).toContain("Validation failed for username");
       expect(error.message).toContain("must be alphanumeric");

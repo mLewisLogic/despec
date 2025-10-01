@@ -1,8 +1,8 @@
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -172,10 +172,12 @@ describe("FileLock - Concurrent Access Tests", () => {
     const finalCount = parseInt(finalValue, 10);
 
     // Calculate statistics
-    const avgWaitDuration = waitDurations.reduce((a, b) => a + b, 0) / waitDurations.length;
+    const avgWaitDuration =
+      waitDurations.reduce((a, b) => a + b, 0) / waitDurations.length;
     const maxWaitDuration = Math.max(...waitDurations);
     const minWaitDuration = Math.min(...waitDurations);
-    const avgHoldDuration = holdDurations.reduce((a, b) => a + b, 0) / holdDurations.length;
+    const avgHoldDuration =
+      holdDurations.reduce((a, b) => a + b, 0) / holdDurations.length;
 
     console.log("\n=== Concurrent FileLock Performance ===");
     console.log(`Total operations attempted: ${totalOperations}`);
@@ -203,7 +205,7 @@ describe("FileLock - Concurrent Access Tests", () => {
 
     // Cleanup workers
     for (const worker of workers) {
-      await worker.terminate();
+      worker.terminate();
     }
   }, 30000); // 30 second timeout
 
@@ -304,25 +306,30 @@ describe("FileLock - Concurrent Access Tests", () => {
       }
     }
 
-    const avgCycleDuration = cycleDurations.reduce((a, b) => a + b, 0) / cycleDurations.length;
+    const avgCycleDuration =
+      cycleDurations.reduce((a, b) => a + b, 0) / cycleDurations.length;
     const maxCycleDuration = Math.max(...cycleDurations);
     const minCycleDuration = Math.min(...cycleDurations);
 
     console.log("\n=== Rapid Lock Cycle Performance ===");
     console.log(`Total cycles: ${totalCycles}`);
     console.log(`Successful cycles: ${successfulCycles}`);
-    console.log(`Success rate: ${((successfulCycles / totalCycles) * 100).toFixed(2)}%`);
+    console.log(
+      `Success rate: ${((successfulCycles / totalCycles) * 100).toFixed(2)}%`,
+    );
     console.log(`Total duration: ${totalDuration.toFixed(2)}ms`);
     console.log(`Average cycle duration: ${avgCycleDuration.toFixed(2)}ms`);
     console.log(`Min cycle duration: ${minCycleDuration}ms`);
     console.log(`Max cycle duration: ${maxCycleDuration}ms`);
-    console.log(`Throughput: ${(totalCycles / (totalDuration / 1000)).toFixed(2)} cycles/second`);
+    console.log(
+      `Throughput: ${(totalCycles / (totalDuration / 1000)).toFixed(2)} cycles/second`,
+    );
 
     expect(successfulCycles).toBe(totalCycles);
 
     // Cleanup workers
     for (const worker of workers) {
-      await worker.terminate();
+      worker.terminate();
     }
   }, 30000);
 
@@ -464,7 +471,7 @@ describe("FileLock - Concurrent Access Tests", () => {
 
     // Cleanup workers
     for (const worker of workers) {
-      await worker.terminate();
+      worker.terminate();
     }
   }, 30000);
 
@@ -541,7 +548,11 @@ describe("FileLock - Concurrent Access Tests", () => {
       worker.on("error", reject);
     })) as {
       success: boolean;
-      result?: { success: boolean; staleLockCleaned: boolean; acquireTime: number };
+      result?: {
+        success: boolean;
+        staleLockCleaned: boolean;
+        acquireTime: number;
+      };
       error?: string;
     };
 
@@ -549,9 +560,11 @@ describe("FileLock - Concurrent Access Tests", () => {
     expect(result.result?.success).toBe(true);
     expect(result.result?.staleLockCleaned).toBe(true);
 
-    console.log(`Stale lock cleaned and new lock acquired in ${result.result?.acquireTime}ms`);
+    console.log(
+      `Stale lock cleaned and new lock acquired in ${result.result?.acquireTime}ms`,
+    );
 
-    await worker.terminate();
+    worker.terminate();
   }, 20000);
 
   it.skip("should measure lock contention impact on performance", async () => {
@@ -629,7 +642,8 @@ describe("FileLock - Concurrent Access Tests", () => {
         }
       }
 
-      const avgDuration = allDurations.reduce((a, b) => a + b, 0) / allDurations.length;
+      const avgDuration =
+        allDurations.reduce((a, b) => a + b, 0) / allDurations.length;
       const p95Duration = allDurations.sort((a, b) => a - b)[
         Math.floor(allDurations.length * 0.95)
       ];
@@ -645,7 +659,7 @@ describe("FileLock - Concurrent Access Tests", () => {
 
       // Cleanup workers
       for (const worker of workers) {
-        await worker.terminate();
+        worker.terminate();
       }
     }
 
@@ -659,6 +673,8 @@ describe("FileLock - Concurrent Access Tests", () => {
     }
 
     // Verify that contention increases latency
-    expect(results[results.length - 1].avgDuration).toBeGreaterThan(results[0].avgDuration);
+    expect(results[results.length - 1].avgDuration).toBeGreaterThan(
+      results[0].avgDuration,
+    );
   }, 30000);
 });

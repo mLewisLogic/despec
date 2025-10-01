@@ -57,16 +57,22 @@ export class PerformanceMetrics {
 
     const sorted = [...values].sort((a, b) => a - b);
     const count = sorted.length;
+    // biome-ignore lint/style/noNonNullAssertion: Array is guaranteed non-empty by function precondition
     const min = sorted[0]!;
+    // biome-ignore lint/style/noNonNullAssertion: Array is guaranteed non-empty by function precondition
     const max = sorted[count - 1]!;
     const mean = sorted.reduce((a, b) => a + b, 0) / count;
 
     const median =
       count % 2 === 0
-        ? (sorted[count / 2 - 1]! + sorted[count / 2]!) / 2
-        : sorted[Math.floor(count / 2)]!;
+        ? // biome-ignore lint/style/noNonNullAssertion: Array access is guaranteed by count calculations
+          (sorted[count / 2 - 1]! + sorted[count / 2]!) / 2
+        : // biome-ignore lint/style/noNonNullAssertion: Array access is guaranteed by count calculations
+          sorted[Math.floor(count / 2)]!;
 
+    // biome-ignore lint/style/noNonNullAssertion: Percentile calculations are guaranteed within array bounds
     const p95 = sorted[Math.floor(count * 0.95)]!;
+    // biome-ignore lint/style/noNonNullAssertion: Percentile calculations are guaranteed within array bounds
     const p99 = sorted[Math.floor(count * 0.99)]!;
 
     const variance =
@@ -119,7 +125,9 @@ export interface StressTestConfig {
 /**
  * Generate stress test scenarios
  */
-export function generateStressScenarios(baseConfig: Partial<StressTestConfig>): StressTestConfig[] {
+export function generateStressScenarios(
+  baseConfig: Partial<StressTestConfig>,
+): StressTestConfig[] {
   const scenarios: StressTestConfig[] = [];
   const workerCounts = [1, 5, 10, 20, 50];
   const operationCounts = [10, 50, 100];
@@ -129,7 +137,8 @@ export function generateStressScenarios(baseConfig: Partial<StressTestConfig>): 
       scenarios.push({
         numWorkers: workers,
         operationsPerWorker: operations,
-        concurrencyLevel: workers <= 5 ? "low" : workers <= 20 ? "medium" : "high",
+        concurrencyLevel:
+          workers <= 5 ? "low" : workers <= 20 ? "medium" : "high",
         resourcePath: baseConfig.resourcePath || "/tmp/stress-test",
         ...baseConfig,
       });

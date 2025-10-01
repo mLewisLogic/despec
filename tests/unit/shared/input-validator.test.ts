@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
 import { InputValidator } from "../../../src/shared/input-validator.js";
 
 describe("InputValidator", () => {
@@ -37,13 +37,17 @@ describe("InputValidator", () => {
     });
 
     test("detects script injection", () => {
-      const result = validator.validateUserInput("Hello <script>alert(1)</script>");
+      const result = validator.validateUserInput(
+        "Hello <script>alert(1)</script>",
+      );
       expect(result.valid).toBe(false);
       expect(result.error).toContain("Script injection");
     });
 
     test("detects case-insensitive script injection", () => {
-      const result = validator.validateUserInput("Hello <SCRIPT>alert(1)</SCRIPT>");
+      const result = validator.validateUserInput(
+        "Hello <SCRIPT>alert(1)</SCRIPT>",
+      );
       expect(result.valid).toBe(false);
       expect(result.error).toContain("Script injection");
     });
@@ -80,7 +84,9 @@ describe("InputValidator", () => {
     });
 
     test("allows non-ASCII when configured", () => {
-      const result = validator.validateUserInput("Hello 世界", { allowNonAscii: true });
+      const result = validator.validateUserInput("Hello 世界", {
+        allowNonAscii: true,
+      });
       expect(result.valid).toBe(true);
       expect(result.sanitized).toBe("Hello 世界");
     });
@@ -88,20 +94,28 @@ describe("InputValidator", () => {
     test("removes YAML special chars at line start by default", () => {
       const result = validator.validateUserInput("-dangerous\n!also-dangerous");
       expect(result.valid).toBe(true);
-      expect(result.details?.some((d) => d.includes("YAML special characters"))).toBe(true);
+      expect(
+        result.details?.some((d) => d.includes("YAML special characters")),
+      ).toBe(true);
     });
 
     test("allows YAML special chars when configured", () => {
-      const result = validator.validateUserInput("-safe", { allowYamlSpecialChars: true });
+      const result = validator.validateUserInput("-safe", {
+        allowYamlSpecialChars: true,
+      });
       expect(result.valid).toBe(true);
       expect(result.sanitized).toBe("-safe");
     });
 
     test("normalizes whitespace", () => {
-      const result = validator.validateUserInput("  Hello  \r\n  World  \r\n\r\n\r\n  ");
+      const result = validator.validateUserInput(
+        "  Hello  \r\n  World  \r\n\r\n\r\n  ",
+      );
       expect(result.valid).toBe(true);
       expect(result.sanitized).toBe("Hello\nWorld");
-      expect(result.details?.some((d) => d.includes("Normalized whitespace"))).toBe(true);
+      expect(
+        result.details?.some((d) => d.includes("Normalized whitespace")),
+      ).toBe(true);
     });
 
     test("validates with custom patterns", () => {
@@ -192,7 +206,9 @@ describe("InputValidator", () => {
     test("rejects identifier with invalid characters", () => {
       const result = validator.validateIdentifier("invalid space");
       expect(result.valid).toBe(false);
-      expect(result.error).toContain("letters, numbers, dashes, and underscores");
+      expect(result.error).toContain(
+        "letters, numbers, dashes, and underscores",
+      );
     });
 
     test("allows identifier with dashes and underscores", () => {

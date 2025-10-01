@@ -150,12 +150,17 @@ export class ErrorHandler {
    * @param options - Retry configuration options
    * @returns Promise that resolves to a RetryResult
    */
-  async withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<RetryResult<T>> {
+  async withRetry<T>(
+    fn: () => Promise<T>,
+    options: RetryOptions = {},
+  ): Promise<RetryResult<T>> {
     const maxRetries = options.maxRetries ?? this.defaultMaxRetries;
     const initialDelay = options.initialDelay ?? this.defaultInitialDelay;
     const maxDelay = options.maxDelay ?? this.defaultMaxDelay;
-    const backoffMultiplier = options.backoffMultiplier ?? this.defaultBackoffMultiplier;
-    const isRetryable = options.isRetryable ?? this.defaultIsRetryable.bind(this);
+    const backoffMultiplier =
+      options.backoffMultiplier ?? this.defaultBackoffMultiplier;
+    const isRetryable =
+      options.isRetryable ?? this.defaultIsRetryable.bind(this);
 
     let lastError: Error | undefined;
     let attempts = 0;
@@ -179,7 +184,8 @@ export class ErrorHandler {
         }
 
         // Calculate delay with exponential backoff and jitter
-        const exponentialDelay = initialDelay * backoffMultiplier ** (attempts - 1);
+        const exponentialDelay =
+          initialDelay * backoffMultiplier ** (attempts - 1);
         const cappedDelay = Math.min(exponentialDelay, maxDelay);
         // Add jitter: random value between 0 and 25% of the delay
         const jitter = Math.random() * 0.25 * cappedDelay;
@@ -362,7 +368,9 @@ export class ErrorHandler {
     ];
 
     const errorString = error.message.toLowerCase();
-    const isNonRetryable = nonRetryablePatterns.some((pattern) => pattern.test(errorString));
+    const isNonRetryable = nonRetryablePatterns.some((pattern) =>
+      pattern.test(errorString),
+    );
 
     return !isNonRetryable;
   }
@@ -375,7 +383,11 @@ export class ErrorHandler {
    * @param cause - The original error
    * @returns Structured error information
    */
-  createFileSystemError(operation: string, filePath: string, cause?: Error): ErrorInfo {
+  createFileSystemError(
+    operation: string,
+    filePath: string,
+    cause?: Error,
+  ): ErrorInfo {
     return this.createError({
       message: `Failed to ${operation} file: ${filePath}`,
       severity: ErrorSeverity.HIGH,
@@ -395,7 +407,11 @@ export class ErrorHandler {
    * @param cause - The original error
    * @returns Structured error information
    */
-  createLockError(resourcePath: string, timeout: number, cause?: Error): ErrorInfo {
+  createLockError(
+    resourcePath: string,
+    timeout: number,
+    cause?: Error,
+  ): ErrorInfo {
     return this.createError({
       message: `Lock acquisition timeout for ${resourcePath}`,
       severity: ErrorSeverity.HIGH,

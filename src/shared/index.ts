@@ -4,7 +4,11 @@
  * input validation, and error handling.
  */
 
-export { AtomicWriter, type FileWrite, type WriteResult } from "./atomic-writer.js";
+export {
+  AtomicWriter,
+  type FileWrite,
+  type WriteResult,
+} from "./atomic-writer.js";
 export {
   ErrorCategory,
   ErrorHandler,
@@ -18,6 +22,12 @@ export {
   type LockInfo,
   type LockOptions,
 } from "./file-lock.js";
+export {
+  checkFilesystemSafety,
+  detectFilesystem,
+  type FilesystemInfo,
+  requireSafeFilesystem,
+} from "./filesystem-detector.js";
 export {
   InputValidator,
   type ValidationOptions,

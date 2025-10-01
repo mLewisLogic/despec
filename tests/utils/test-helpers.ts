@@ -125,7 +125,11 @@ export function timeout(ms: number, message?: string): Promise<never> {
 /**
  * Races a promise against a timeout
  */
-export function withTimeout<T>(promise: Promise<T>, ms: number, message?: string): Promise<T> {
+export function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  message?: string,
+): Promise<T> {
   return Promise.race([promise, timeout(ms, message)]);
 }
 
@@ -140,7 +144,11 @@ export async function waitFor(
     message?: string;
   } = {},
 ): Promise<void> {
-  const { timeout: timeoutMs = 5000, interval = 100, message = "Condition not met" } = options;
+  const {
+    timeout: timeoutMs = 5000,
+    interval = 100,
+    message = "Condition not met",
+  } = options;
 
   const startTime = Date.now();
 
@@ -258,10 +266,12 @@ export class PerformanceTracker {
     if (!this.measurements.has(name)) {
       this.measurements.set(name, []);
     }
-    this.measurements.get(name)!.push(duration);
+    this.measurements.get(name)?.push(duration);
   }
 
-  getStats(name: string): { min: number; max: number; avg: number; count: number } | null {
+  getStats(
+    name: string,
+  ): { min: number; max: number; avg: number; count: number } | null {
     const values = this.measurements.get(name);
     if (!values || values.length === 0) return null;
 

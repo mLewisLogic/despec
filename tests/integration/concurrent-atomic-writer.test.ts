@@ -1,8 +1,8 @@
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -73,7 +73,9 @@ describe("AtomicWriter - Concurrent Access Tests", () => {
     const workers: Worker[] = [];
     const workerPromises: Promise<any>[] = [];
 
-    console.log(`Starting ${numWorkers} workers, each performing ${writesPerWorker} writes...`);
+    console.log(
+      `Starting ${numWorkers} workers, each performing ${writesPerWorker} writes...`,
+    );
     const startTime = performance.now();
 
     // Create and start workers
@@ -128,7 +130,8 @@ describe("AtomicWriter - Concurrent Access Tests", () => {
     expect(finalContent).toMatch(/Worker-\d+-Write-\d+/);
 
     // Calculate statistics
-    const avgWriteDuration = writeDurations.reduce((a, b) => a + b, 0) / writeDurations.length;
+    const avgWriteDuration =
+      writeDurations.reduce((a, b) => a + b, 0) / writeDurations.length;
     const maxWriteDuration = Math.max(...writeDurations);
     const minWriteDuration = Math.min(...writeDurations);
 
@@ -140,17 +143,19 @@ describe("AtomicWriter - Concurrent Access Tests", () => {
     console.log(`Average write duration: ${avgWriteDuration.toFixed(2)}ms`);
     console.log(`Min write duration: ${minWriteDuration}ms`);
     console.log(`Max write duration: ${maxWriteDuration}ms`);
-    console.log(`Throughput: ${(totalWrites / (totalDuration / 1000)).toFixed(2)} writes/second`);
+    console.log(
+      `Throughput: ${(totalWrites / (totalDuration / 1000)).toFixed(2)} writes/second`,
+    );
 
     // All writes should succeed (atomic writer handles conflicts internally)
     expect(successfulWrites).toBe(totalWrites);
     expect(failedWrites).toBe(0);
 
-    // Cleanup workers
+    // Cleanup workers (don't await - causes hang in Bun test runner)
     for (const worker of workers) {
-      await worker.terminate();
+      worker.terminate(); // Fire and forget - awaiting hangs in Bun tests
     }
-  }, 30000); // 30 second timeout for this test
+  }, 5000); // 5 second timeout
 
   it("should maintain data integrity with rapid concurrent writes to multiple files", async () => {
     // Reduced for faster standard tests
@@ -193,7 +198,9 @@ describe("AtomicWriter - Concurrent Access Tests", () => {
     const workers: Worker[] = [];
     const workerPromises: Promise<any>[] = [];
 
-    console.log(`\nStarting ${numWorkers} workers writing to ${numFiles} files...`);
+    console.log(
+      `\nStarting ${numWorkers} workers writing to ${numFiles} files...`,
+    );
 
     // Create and start workers
     for (let i = 0; i < numWorkers; i++) {
@@ -248,11 +255,11 @@ describe("AtomicWriter - Concurrent Access Tests", () => {
       }
     }
 
-    // Cleanup workers
+    // Cleanup workers (don't await - causes hang in Bun test runner)
     for (const worker of workers) {
-      await worker.terminate();
+      worker.terminate(); // Fire and forget - awaiting hangs in Bun tests
     }
-  }, 30000);
+  }, 5000); // 5 second timeout
 
   it("should handle batch writes atomically under concurrent load", async () => {
     // Reduced for faster standard tests
@@ -297,7 +304,9 @@ describe("AtomicWriter - Concurrent Access Tests", () => {
     const workers: Worker[] = [];
     const workerPromises: Promise<any>[] = [];
 
-    console.log(`\nStarting ${numWorkers} workers, each writing ${batchSize} files atomically...`);
+    console.log(
+      `\nStarting ${numWorkers} workers, each writing ${batchSize} files atomically...`,
+    );
     const startTime = performance.now();
 
     // Create and start workers
@@ -339,7 +348,8 @@ describe("AtomicWriter - Concurrent Access Tests", () => {
       }
     }
 
-    const avgBatchDuration = batchDurations.reduce((a, b) => a + b, 0) / batchDurations.length;
+    const avgBatchDuration =
+      batchDurations.reduce((a, b) => a + b, 0) / batchDurations.length;
 
     console.log("\n=== Batch AtomicWriter Performance ===");
     console.log(`Total files written: ${totalFilesWritten}`);
@@ -355,9 +365,9 @@ describe("AtomicWriter - Concurrent Access Tests", () => {
     const files = await fs.readdir(TEST_DIR);
     expect(files.length).toBe(numWorkers * batchSize);
 
-    // Cleanup workers
+    // Cleanup workers (don't await - causes hang in Bun test runner)
     for (const worker of workers) {
-      await worker.terminate();
+      worker.terminate(); // Fire and forget - awaiting hangs in Bun tests
     }
-  }, 30000);
+  }, 5000); // 5 second timeout
 });

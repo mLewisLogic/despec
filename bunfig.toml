@@ -1,0 +1,8 @@
+# Bun test configuration
+[test]
+# Timeout configuration (in milliseconds) - increased for slow integration tests
+timeout = 60000
+
+# Coverage configuration
+coverage = true
+coverageThreshold = 80.0

@@ -42,7 +42,9 @@ async function main() {
     }
   } catch (error) {
     console.error(
-      JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
+      JSON.stringify({
+        error: error instanceof Error ? error.message : String(error),
+      }),
     );
     process.exit(1);
   }

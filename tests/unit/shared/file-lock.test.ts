@@ -116,19 +116,18 @@ describe("FileLock", () => {
     const lock1 = new FileLock();
     const resourcePath = path.join(TEST_DIR, "resource.txt");
 
-    // Create a stale lock directory manually with old timestamp
+    // Create a stale lock file manually with old timestamp
     const lockPath = `${resourcePath}.lock`;
-    await fs.mkdir(lockPath);
 
     const metadata = {
       pid: 99999, // Non-existent PID
       hostname: "stale-host",
       lockId: "stale-lock-id",
       timestamp: Date.now() - 2000, // 2 seconds ago
+      processStartTime: Date.now() - 10000, // Process started 10s ago
     };
 
-    const metadataPath = path.join(lockPath, "metadata.json");
-    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+    await fs.writeFile(lockPath, JSON.stringify(metadata, null, 2));
 
     // Should acquire lock by cleaning stale lock
     await lock1.acquire(resourcePath, { staleTimeout: 500 });
@@ -185,10 +184,10 @@ describe("FileLock", () => {
 
     const heldLocks = lock.getHeldLocks();
     expect(heldLocks.length).toBe(1);
-    expect(heldLocks[0]!.resourcePath).toBe(resourcePath);
-    expect(heldLocks[0]!.lockPath).toBe(`${resourcePath}.lock`);
-    expect(heldLocks[0]!.lockId).toBeDefined();
-    expect(heldLocks[0]!.acquiredAt).toBeGreaterThan(0);
+    expect(heldLocks[0]?.resourcePath).toBe(resourcePath);
+    expect(heldLocks[0]?.lockPath).toBe(`${resourcePath}.lock`);
+    expect(heldLocks[0]?.lockId).toBeDefined();
+    expect(heldLocks[0]?.acquiredAt).toBeGreaterThan(0);
 
     await lock.release(resourcePath);
   });
@@ -209,7 +208,9 @@ describe("FileLock", () => {
     const locks = Array.from({ length: 3 }, () => new FileLock());
 
     const results = await Promise.allSettled(
-      locks.map((lock) => lock.acquire(resourcePath, { timeout: 300, retryInterval: 20 })),
+      locks.map((lock) =>
+        lock.acquire(resourcePath, { timeout: 300, retryInterval: 20 }),
+      ),
     );
 
     // Exactly one should succeed
@@ -221,6 +222,6 @@ describe("FileLock", () => {
 
     // Release the successful lock
     const successIndex = results.findIndex((r) => r.status === "fulfilled");
-    await locks[successIndex]!.release(resourcePath);
+    await locks[successIndex]?.release(resourcePath);
   });
 });

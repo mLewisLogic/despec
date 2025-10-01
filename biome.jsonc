@@ -8,48 +8,36 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "**",
+      "**/*.json",
+      "**/*.jsonc",
+      "**/*.ts",
       "!**/.despec",
-      "!**/coverage",
       "!**/dist",
-      "!**/node_modules",
-      "!**/bun.lockb"
+      "!**/node_modules"
     ]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100
+    "indentWidth": 2
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
-      "complexity": {
-        "noExtraBooleanCast": "error",
-        "noForEach": "off",
-        "noUselessTypeConstraint": "error"
-      },
-      "correctness": {
-        "noUnusedVariables": "error",
-        "useExhaustiveDependencies": "warn"
-      },
-      "style": {
-        "noNonNullAssertion": "off",
-        "useConst": "error",
-        "useTemplate": "error"
-      },
-      "suspicious": {
-        "noExplicitAny": "warn",
-        "noArrayIndexKey": "warn"
-      }
+      "recommended": true
     }
   },
   "overrides": [
     {
-      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/tests/**"],
+      "includes": ["**/*.test.ts", "**/tests/**"],
       "linter": {
         "rules": {
           "suspicious": {

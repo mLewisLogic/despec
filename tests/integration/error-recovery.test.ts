@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { ErrorHandler } from "../../src/shared/error-handler.js";
 
 describe("ErrorHandler - Retry Logic & Recovery", () => {
@@ -145,6 +145,7 @@ describe("ErrorHandler - Retry Logic & Recovery", () => {
       // Calculate delays between attempts
       const delays: number[] = [];
       for (let i = 1; i < attemptTimes.length; i++) {
+        // biome-ignore lint/style/noNonNullAssertion: Array access is guaranteed by loop bounds
         delays.push(attemptTimes[i]! - attemptTimes[i - 1]!);
       }
 
@@ -183,6 +184,7 @@ describe("ErrorHandler - Retry Logic & Recovery", () => {
 
       const delays: number[] = [];
       for (let i = 1; i < attemptTimes.length; i++) {
+        // biome-ignore lint/style/noNonNullAssertion: Array access is guaranteed by loop bounds
         delays.push(attemptTimes[i]! - attemptTimes[i - 1]!);
       }
 
@@ -219,6 +221,7 @@ describe("ErrorHandler - Retry Logic & Recovery", () => {
 
       const delays: number[] = [];
       for (let i = 1; i < attemptTimes.length; i++) {
+        // biome-ignore lint/style/noNonNullAssertion: Array access is guaranteed by loop bounds
         delays.push(attemptTimes[i]! - attemptTimes[i - 1]!);
       }
 
@@ -252,6 +255,7 @@ describe("ErrorHandler - Retry Logic & Recovery", () => {
 
       const delays: number[] = [];
       for (let i = 1; i < attemptTimes.length; i++) {
+        // biome-ignore lint/style/noNonNullAssertion: Array access is guaranteed by loop bounds
         delays.push(attemptTimes[i]! - attemptTimes[i - 1]!);
       }
 
@@ -536,7 +540,9 @@ describe("ErrorHandler - Retry Logic & Recovery", () => {
         timestamp: new Date(),
       };
 
-      const result = await handler.withRetry(async () => complexResult, { maxRetries: 2 });
+      const result = await handler.withRetry(async () => complexResult, {
+        maxRetries: 2,
+      });
 
       expect(result.success).toBe(true);
       expect(result.value).toEqual(complexResult);

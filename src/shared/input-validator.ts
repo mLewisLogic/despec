@@ -55,14 +55,15 @@ export class InputValidator {
   /**
    * Forbidden patterns that indicate potential security issues
    */
-  private readonly forbiddenPatterns: Array<{ pattern: RegExp; name: string }> = [
-    { pattern: /\$\{.*\}/, name: "Template injection" },
-    { pattern: /<script/i, name: "Script injection" },
-    { pattern: /\.\.\/\.\.\//g, name: "Path traversal" },
-    { pattern: /javascript:/i, name: "JavaScript protocol" },
-    { pattern: /data:text\/html/i, name: "Data URI HTML" },
-    { pattern: /on\w+\s*=/i, name: "Event handler" },
-  ];
+  private readonly forbiddenPatterns: Array<{ pattern: RegExp; name: string }> =
+    [
+      { pattern: /\$\{.*\}/, name: "Template injection" },
+      { pattern: /<script/i, name: "Script injection" },
+      { pattern: /\.\.\/\.\.\//g, name: "Path traversal" },
+      { pattern: /javascript:/i, name: "JavaScript protocol" },
+      { pattern: /data:text\/html/i, name: "Data URI HTML" },
+      { pattern: /on\w+\s*=/i, name: "Event handler" },
+    ];
 
   /**
    * Validates and sanitizes user input.
@@ -71,7 +72,10 @@ export class InputValidator {
    * @param options - Validation options
    * @returns Validation result with sanitized input or error message
    */
-  validateUserInput(input: string, options: ValidationOptions = {}): ValidationResult {
+  validateUserInput(
+    input: string,
+    options: ValidationOptions = {},
+  ): ValidationResult {
     const maxLength = options.maxLength ?? this.defaultMaxLength;
     const details: string[] = [];
 
@@ -99,7 +103,9 @@ export class InputValidator {
       const originalLength = sanitized.length;
       sanitized = sanitized.replace(/[^\x20-\x7E\n\r\t]/g, "");
       if (sanitized.length !== originalLength) {
-        details.push(`Removed ${originalLength - sanitized.length} non-ASCII characters`);
+        details.push(
+          `Removed ${originalLength - sanitized.length} non-ASCII characters`,
+        );
       }
     }
 
@@ -131,7 +137,10 @@ export class InputValidator {
     // THEN validate patterns on sanitized input
     const forbiddenPatterns = [
       ...this.forbiddenPatterns,
-      ...(options.customPatterns?.map((p) => ({ pattern: p, name: "Custom" })) ?? []),
+      ...(options.customPatterns?.map((p) => ({
+        pattern: p,
+        name: "Custom",
+      })) ?? []),
     ];
 
     for (const { pattern, name } of forbiddenPatterns) {
@@ -158,7 +167,10 @@ export class InputValidator {
    * @param options - Validation options
    * @returns Validation result
    */
-  validateYamlContent(input: string, options: ValidationOptions = {}): ValidationResult {
+  validateYamlContent(
+    input: string,
+    options: ValidationOptions = {},
+  ): ValidationResult {
     return this.validateUserInput(input, {
       ...options,
       allowYamlSpecialChars: true,
@@ -210,7 +222,10 @@ export class InputValidator {
    * @param maxLength - Maximum length for the identifier (default: 50)
    * @returns Validation result
    */
-  validateIdentifier(identifier: string, maxLength: number = 50): ValidationResult {
+  validateIdentifier(
+    identifier: string,
+    maxLength: number = 50,
+  ): ValidationResult {
     // Length check
     if (identifier.length > maxLength) {
       return {
@@ -239,7 +254,8 @@ export class InputValidator {
     if (!/^[a-zA-Z0-9_-]+$/.test(identifier)) {
       return {
         valid: false,
-        error: "Identifier must contain only letters, numbers, dashes, and underscores",
+        error:
+          "Identifier must contain only letters, numbers, dashes, and underscores",
       };
     }
 

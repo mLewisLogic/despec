@@ -28,6 +28,12 @@ export interface WriteResult {
  * This prevents partial writes and ensures data integrity even if the process
  * crashes mid-write.
  *
+ * DURABILITY GUARANTEE:
+ * After rename, parent directories are fsynced to ensure the rename operation
+ * is durable on disk. Without this, on ext3/ext4/btrfs filesystems, a power
+ * loss after rename but before directory metadata is flushed may result in
+ * neither the old nor new file existing.
+ *
  * @example
  * ```typescript
  * const writer = new AtomicWriter();
@@ -38,6 +44,45 @@ export interface WriteResult {
  * ```
  */
 export class AtomicWriter {
+  /**
+   * Syncs parent directories to ensure durability of metadata changes.
+   * This is critical after rename operations to guarantee atomicity survives power loss.
+   *
+   * On ext3/ext4/btrfs: Directory entries are cached and must be flushed
+   * On APFS/HFS+: Has different semantics but fsync doesn't hurt
+   * On NTFS: FlushFileBuffers achieves similar guarantee
+   *
+   * @param filePaths - Array of file paths whose parent directories should be synced
+   * @throws {Error} If directory sync fails (non-fatal, logs warning)
+   */
+  private async syncParentDirectories(filePaths: string[]): Promise<void> {
+    // Get unique parent directories
+    const parentDirs = new Set(filePaths.map((p) => path.dirname(p)));
+
+    // Sync each parent directory
+    await Promise.allSettled(
+      Array.from(parentDirs).map(async (dirPath) => {
+        try {
+          // Open directory for reading (required to fsync it)
+          const dirHandle = await fs.open(dirPath, "r");
+          try {
+            // Sync directory metadata to disk
+            await dirHandle.sync();
+          } finally {
+            // Always close the handle
+            await dirHandle.close();
+          }
+        } catch (error) {
+          // Directory fsync may fail on some filesystems or due to permissions
+          // This is not fatal but reduces durability guarantee
+          // Log warning but don't throw - the write itself succeeded
+          console.warn(
+            `Warning: Failed to sync directory ${dirPath}: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+      }),
+    );
+  }
   /**
    * Writes multiple files atomically using the write-rename pattern.
    * All files are written to temporary files first, then renamed to their
@@ -68,13 +113,18 @@ export class AtomicWriter {
     try {
       // Ensure all parent directories exist
       await Promise.all(
-        tempFiles.map((f) => fs.mkdir(path.dirname(f.original), { recursive: true })),
+        tempFiles.map((f) =>
+          fs.mkdir(path.dirname(f.original), { recursive: true }),
+        ),
       );
 
       // Write all content to temporary files with secure permissions
       await Promise.all(
         tempFiles.map(async (f) => {
-          await fs.writeFile(f.temp, f.content, { encoding: "utf8", mode: 0o600 });
+          await fs.writeFile(f.temp, f.content, {
+            encoding: "utf8",
+            mode: 0o600,
+          });
         }),
       );
 
@@ -92,17 +142,24 @@ export class AtomicWriter {
 
       // Atomically rename all temporary files to their final destinations
       await Promise.all(tempFiles.map((f) => fs.rename(f.temp, f.original)));
+
+      // Fsync parent directories to ensure rename is durable on disk
+      // Without this, on power loss the rename may not be persisted (ext3/ext4/btrfs)
+      await this.syncParentDirectories(tempFiles.map((f) => f.original));
     } catch (error) {
       // Cleanup: remove all temporary files on failure
       await Promise.allSettled(
-        tempFiles.map((f) =>
-          fs.unlink(f.temp).catch(() => {
+        tempFiles.map(async (f) => {
+          try {
+            await fs.unlink(f.temp);
+          } catch {
             // Ignore cleanup errors - file may not exist
-          }),
-        ),
+          }
+        }),
       );
 
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       throw new Error(`Atomic write failed: ${errorMessage}`);
     }
   }

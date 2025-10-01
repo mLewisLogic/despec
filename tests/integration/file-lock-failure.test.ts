@@ -1,6 +1,6 @@
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { FileLock } from "../../src/shared/file-lock.js";
 
 const TEST_DIR = "/tmp/despec-file-lock-failure-tests";
@@ -72,15 +72,15 @@ describe("FileLock - Failure Conditions", () => {
       const resourcePath = path.join(TEST_DIR, "stale-resource.txt");
       const lockPath = `${resourcePath}.lock`;
 
-      // Create a stale lock directory with metadata
-      await fs.mkdir(lockPath);
+      // Create a stale lock file with metadata
       await fs.writeFile(
-        path.join(lockPath, "metadata.json"),
+        lockPath,
         JSON.stringify({
           pid: 99999, // Non-existent PID
           hostname: "stale-host",
           lockId: "stale-lock-id",
           timestamp: Date.now() - 2000, // 2 seconds ago
+          processStartTime: Date.now() - 10000, // Required field
         }),
       );
 
@@ -100,12 +100,8 @@ describe("FileLock - Failure Conditions", () => {
       const resourcePath = path.join(TEST_DIR, "corrupted-lock.txt");
       const lockPath = `${resourcePath}.lock`;
 
-      // Create lock directory with corrupted metadata
-      await fs.mkdir(lockPath);
-      await fs.writeFile(
-        path.join(lockPath, "metadata.json"),
-        Buffer.from([0x00, 0xff, 0xfe, 0x01]),
-      );
+      // Create lock file with corrupted metadata
+      await fs.writeFile(lockPath, Buffer.from([0x00, 0xff, 0xfe, 0x01]));
 
       // Make it stale
       const oldTime = new Date(Date.now() - 1000);
@@ -139,7 +135,10 @@ describe("FileLock - Failure Conditions", () => {
 
     test("handles releaseAll with some failed releases", async () => {
       const lock = new FileLock();
-      const resources = [path.join(TEST_DIR, "res1.txt"), path.join(TEST_DIR, "res2.txt")];
+      const resources = [
+        path.join(TEST_DIR, "res1.txt"),
+        path.join(TEST_DIR, "res2.txt"),
+      ];
 
       // Acquire all locks
       for (const resource of resources) {

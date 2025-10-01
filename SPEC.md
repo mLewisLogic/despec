@@ -161,7 +161,7 @@ Build the specification stage with validated foundations:
 
 #### Days 3-4: Schemas & ID Generation
 - [ ] Define Zod schemas for all entities
-- [ ] Implement nanoid-based ID generation (10+ chars)
+- [ ] Implement nanoid-based ID generation (nanoid(16))
 - [ ] Generate JSON schemas from Zod
 - [ ] Test for ID collisions (1M generations)
 
@@ -177,7 +177,7 @@ Build the specification stage with validated foundations:
 import { nanoid } from 'nanoid';
 
 export function generateRequirementId(category: string): string {
-  return `REQ-${category.toUpperCase()}-${nanoid(10)}`;
+  return `REQ-${category.toUpperCase()}-${nanoid(16)}`;
 }
 
 // Atomic Writes
@@ -313,7 +313,7 @@ type AcceptanceCriterion =
   | AssertionCriterion;
 
 interface BehavioralCriterion {
-  id: string;  // AC-[nanoid(10)]
+  id: string;  // AC-[nanoid(16)]
   type: 'behavioral';
   given: string;  // Precondition
   when: string;   // Trigger event
@@ -322,7 +322,7 @@ interface BehavioralCriterion {
 }
 
 interface AssertionCriterion {
-  id: string;  // AC-[nanoid(10)]
+  id: string;  // AC-[nanoid(16)]
   type: 'assertion';
   statement: string;  // Single assertion
   created_at: string;
@@ -725,7 +725,7 @@ limits:
 
 ### Scaling Considerations
 
-- **ID Collisions**: nanoid(10) safe for millions of IDs
+- **ID Collisions**: nanoid(16) safe for millions of IDs
 - **Changelog Growth**: Snapshots every 100 events
 - **Concurrent Access**: File locks with 5s timeout
 - **Memory Usage**: Stream large files, don't load entirely
@@ -756,7 +756,7 @@ limits:
 ### Accepted
 
 1. ✅ Use real `@anthropic-ai/sdk` (not fictional agent SDK)
-2. ✅ nanoid(10) for collision-resistant IDs
+2. ✅ nanoid(16) for collision-resistant IDs
 3. ✅ Atomic writes with write-rename pattern
 4. ✅ File-based advisory locks for concurrency
 5. ✅ Event sourcing with periodic snapshots

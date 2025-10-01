@@ -22,23 +22,23 @@ description = "Run Bun"
 # =============================================================================
 
 [tasks."test:unit"]
-run = "bun run test:unit"
+run = "bun test tests/unit/"
 description = "Run unit tests (fast)"
 
 [tasks."test:integration"]
-run = "bun run test:integration"
+run = "bun test tests/integration/"
 description = "Run integration tests (slow)"
 
 [tasks."test:full"]
-run = "bun run test:full"
+run = "bun test"
 description = "Run full test suite"
 
 [tasks."test:coverage"]
-run = "bun run test:coverage"
+run = "bun test --coverage"
 description = "Generate test coverage report"
 
 [tasks."test:ci"]
-run = "bun run test:ci"
+run = "bun test --reporter=verbose"
 description = "Run test suite in CI mode"
 
 
@@ -47,7 +47,7 @@ description = "Run test suite in CI mode"
 # =============================================================================
 
 [tasks.ts-typecheck]
-run = "bun run typecheck"
+run = "bun x tsc --noEmit"
 description = "Run TypeScript type checking"
 
 [tasks.biome-lint]

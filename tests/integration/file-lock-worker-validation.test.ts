@@ -10,11 +10,11 @@
  * 3. Performance benchmarks for lock acquisition and write throughput
  */
 
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEST_DIR = path.join("/tmp", "despec-worker-validation");
@@ -122,17 +122,24 @@ describe("FileLock Worker Thread Validation", () => {
 
     // Calculate aggregate statistics
     const successRate = (successfulRuns / NUM_RUNS) * 100;
-    const totalLostIncrements = results.reduce((sum, r) => sum + r.lostIncrements, 0);
-    const avgWaitTime = results.reduce((sum, r) => sum + r.avgWaitTime, 0) / results.length;
+    const totalLostIncrements = results.reduce(
+      (sum, r) => sum + r.lostIncrements,
+      0,
+    );
+    const avgWaitTime =
+      results.reduce((sum, r) => sum + r.avgWaitTime, 0) / results.length;
     const maxWaitTime = Math.max(...results.map((r) => r.maxWaitTime));
-    const avgDuration = results.reduce((sum, r) => sum + r.totalDuration, 0) / results.length;
+    const avgDuration =
+      results.reduce((sum, r) => sum + r.totalDuration, 0) / results.length;
 
     console.log("\n=== FileLock Validation Results ===");
     console.log(`Total runs: ${NUM_RUNS}`);
     console.log(`Successful runs: ${successfulRuns}`);
     console.log(`Failed runs: ${failedRuns}`);
     console.log(`Success rate: ${successRate.toFixed(2)}%`);
-    console.log(`Total lost increments across all runs: ${totalLostIncrements}`);
+    console.log(
+      `Total lost increments across all runs: ${totalLostIncrements}`,
+    );
     console.log(`Average wait time: ${avgWaitTime.toFixed(2)}ms`);
     console.log(`Max wait time: ${maxWaitTime.toFixed(2)}ms`);
     console.log(`Average run duration: ${avgDuration.toFixed(2)}ms`);
@@ -154,13 +161,19 @@ describe("FileLock Worker Thread Validation", () => {
     const EXPECTED_TOTAL_FILES = NUM_WORKERS * FILES_PER_WORKER;
 
     console.log("\n=== AtomicWriter Stress Test ===");
-    console.log(`Configuration: ${NUM_WORKERS} workers × ${FILES_PER_WORKER} files`);
+    console.log(
+      `Configuration: ${NUM_WORKERS} workers × ${FILES_PER_WORKER} files`,
+    );
     console.log(`Expected total files: ${EXPECTED_TOTAL_FILES}\n`);
 
     const testDir = path.join(TEST_DIR, "atomic-writer-stress");
     await fs.mkdir(testDir, { recursive: true });
 
-    const result = await runAtomicWriterTest(testDir, NUM_WORKERS, FILES_PER_WORKER);
+    const result = await runAtomicWriterTest(
+      testDir,
+      NUM_WORKERS,
+      FILES_PER_WORKER,
+    );
 
     console.log("\n=== AtomicWriter Stress Test Results ===");
     console.log(`Total files written: ${result.totalFiles}`);
@@ -200,10 +213,16 @@ describe("FileLock Worker Thread Validation", () => {
 
     const lockResourcePath = path.join(lockBenchDir, "bench-resource.txt");
 
-    console.log("\nBenchmark 1: FileLock acquisition under contention (5 workers × 20 operations)");
+    console.log(
+      "\nBenchmark 1: FileLock acquisition under contention (5 workers × 20 operations)",
+    );
     const lockBenchResult = await runFileLockTest(0, lockResourcePath, 5, 20);
-    console.log(`  Average lock acquisition time: ${lockBenchResult.avgWaitTime.toFixed(2)}ms`);
-    console.log(`  Max lock acquisition time: ${lockBenchResult.maxWaitTime.toFixed(2)}ms`);
+    console.log(
+      `  Average lock acquisition time: ${lockBenchResult.avgWaitTime.toFixed(2)}ms`,
+    );
+    console.log(
+      `  Max lock acquisition time: ${lockBenchResult.maxWaitTime.toFixed(2)}ms`,
+    );
     console.log(
       `  Throughput: ${((lockBenchResult.totalOperations / lockBenchResult.totalDuration) * 1000).toFixed(2)} ops/second`,
     );
@@ -212,10 +231,16 @@ describe("FileLock Worker Thread Validation", () => {
     const writerBenchDir = path.join(TEST_DIR, "writer-bench");
     await fs.mkdir(writerBenchDir, { recursive: true });
 
-    console.log("\nBenchmark 2: AtomicWriter throughput (3 workers × 50 files)");
+    console.log(
+      "\nBenchmark 2: AtomicWriter throughput (3 workers × 50 files)",
+    );
     const writerBenchResult = await runAtomicWriterTest(writerBenchDir, 3, 50);
-    console.log(`  Average write time: ${writerBenchResult.avgWriteTime.toFixed(2)}ms`);
-    console.log(`  Throughput: ${writerBenchResult.throughput.toFixed(2)} writes/second`);
+    console.log(
+      `  Average write time: ${writerBenchResult.avgWriteTime.toFixed(2)}ms`,
+    );
+    console.log(
+      `  Throughput: ${writerBenchResult.throughput.toFixed(2)} writes/second`,
+    );
 
     // Performance assertions (reasonable thresholds)
     expect(lockBenchResult.avgWaitTime).toBeLessThan(500); // < 500ms average wait
@@ -361,12 +386,14 @@ async function runFileLockTest(
   const expectedCount = successfulOperations;
   const lostIncrements = expectedCount - actualCount;
   const avgWaitTime =
-    waitTimes.length > 0 ? waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length : 0;
+    waitTimes.length > 0
+      ? waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length
+      : 0;
   const maxWaitTime = waitTimes.length > 0 ? Math.max(...waitTimes) : 0;
 
-  // Cleanup workers
+  // Cleanup workers (don't await - causes hang in Bun test runner)
   for (const worker of workers) {
-    await worker.terminate();
+    worker.terminate(); // Fire and forget - awaiting hangs in Bun tests
   }
 
   return {
@@ -513,7 +540,9 @@ async function runAtomicWriterTest(
     }
 
     const avgWriteTime =
-      writeTimes.length > 0 ? writeTimes.reduce((a, b) => a + b, 0) / writeTimes.length : 0;
+      writeTimes.length > 0
+        ? writeTimes.reduce((a, b) => a + b, 0) / writeTimes.length
+        : 0;
 
     workerResults.push({
       workerId: i,
@@ -526,13 +555,15 @@ async function runAtomicWriterTest(
   }
 
   const avgWriteTime =
-    allWriteTimes.length > 0 ? allWriteTimes.reduce((a, b) => a + b, 0) / allWriteTimes.length : 0;
+    allWriteTimes.length > 0
+      ? allWriteTimes.reduce((a, b) => a + b, 0) / allWriteTimes.length
+      : 0;
   const throughput = totalFiles / (totalDuration / 1000);
   const corruptionRate = (totalCorruptions / totalFiles) * 100;
 
-  // Cleanup workers
+  // Cleanup workers (don't await - causes hang in Bun test runner)
   for (const worker of workers) {
-    await worker.terminate();
+    worker.terminate(); // Fire and forget - awaiting hangs in Bun tests
   }
 
   return {
@@ -543,6 +574,7 @@ async function runAtomicWriterTest(
     avgWriteTime,
     throughput,
     totalDuration,
-    success: totalCorruptions === 0 && totalFiles === numWorkers * filesPerWorker,
+    success:
+      totalCorruptions === 0 && totalFiles === numWorkers * filesPerWorker,
   };
 }

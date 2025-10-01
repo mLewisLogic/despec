@@ -9,33 +9,17 @@
   "bin": {
     "despec": "./dist/cli.js"
   },
-  "scripts": {
-    "test:unit": "vitest run tests/unit/",
-    "test:integration": "vitest run tests/integration/",
-    "test:full": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:ci": "vitest run --reporter=verbose",
-
-    "biome:check": "biome check .",
-    "biome:fix": "biome check --fix .",
-    "typecheck": "tsc --noEmit"
-  },
+  "scripts": {},
   "dependencies": {
-    "@anthropic-ai/sdk": "latest",
-    "nanoid": "latest",
-    "yaml": "latest",
-    "zod": "latest",
-    "zod-to-json-schema": "latest"
+    "@anthropic-ai/sdk": "^0.65.0",
+    "nanoid": "^5.1.6",
+    "yaml": "^2.8.1",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
-    "@biomejs/biome": "latest",
-    "@types/bun": "latest",
-    "@vitest/coverage-v8": "latest",
-    "lefthook": "latest",
-    "typescript": "latest",
-    "vitest": "latest"
-  },
-  "engines": {
-    "bun": "latest"
+    "@biomejs/biome": "^2.2.4",
+    "@types/bun": "^1.2.23",
+    "lefthook": "^1.13.6",
+    "typescript": "^5.9.3"
   }
 }
