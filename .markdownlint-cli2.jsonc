@@ -1,0 +1,172 @@
+{
+  "config": {
+    // https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+    "default": true,
+    // MD001 - heading-increment
+    "heading-increment": true,
+    // MD002 - first-heading-h1 (deprecated, use MD041)
+    // MD003 - heading-style
+    "heading-style": {
+      "style": "atx"
+    },
+    // MD004 - ul-style
+    "ul-style": {
+      "style": "dash"
+    },
+    // MD005 - list-indent
+    "list-indent": true,
+    // MD006 - ul-start-left (deprecated, use MD007)
+    // MD007 - ul-indent
+    "ul-indent": {
+      "indent": 2,
+      "start_indented": false,
+      "start_indent": 2
+    },
+    // MD008 - no-trailing-spaces (deprecated, use MD009)
+    // MD009 - no-trailing-spaces
+    "no-trailing-spaces": {
+      "br_spaces": 0,
+      "list_item_empty_lines": false,
+      "strict": true
+    },
+    // MD010 - no-hard-tabs
+    "no-hard-tabs": {
+      "code_blocks": true,
+      "spaces_per_tab": 2
+    },
+    // MD011 - no-reversed-links
+    "no-reversed-links": true,
+    // MD012 - no-multiple-blanks
+    "no-multiple-blanks": {
+      "maximum": 2
+    },
+    // MD013 - line-length
+    "line-length": false,
+    // MD014 - commands-show-output
+    "commands-show-output": true,
+    // MD015 - no-missing-link-description (deprecated)
+    // MD016 - no-split-link (deprecated)
+    // MD017 - content-indent (deprecated)
+    // MD018 - no-missing-space-atx
+    "no-missing-space-atx": true,
+    // MD019 - no-multiple-space-atx
+    "no-multiple-space-atx": true,
+    // MD020 - no-missing-space-closed-atx
+    "no-missing-space-closed-atx": true,
+    // MD021 - no-multiple-space-closed-atx
+    "no-multiple-space-closed-atx": true,
+    // MD022 - blanks-around-headings
+    "blanks-around-headings": {
+      "lines_above": 1,
+      "lines_below": 0
+    },
+    // MD023 - heading-start-left
+    "heading-start-left": true,
+    // MD024 - no-duplicate-heading
+    "no-duplicate-heading": {
+      "siblings_only": true
+    },
+    // MD025 - single-title / single-h1
+    "single-title": true,
+    // MD026 - no-trailing-punctuation
+    "no-trailing-punctuation": true,
+    // MD027 - no-multiple-space-blockquote
+    "no-multiple-space-blockquote": true,
+    // MD028 - no-blanks-blockquote
+    "no-blanks-blockquote": true,
+    // MD029 - ol-prefix
+    "ol-prefix": {
+      "style": "ordered"
+    },
+    // MD030 - list-marker-space
+    "list-marker-space": {
+      "ul_single": 1,
+      "ol_single": 1,
+      "ul_multi": 1,
+      "ol_multi": 1
+    },
+    // MD031 - blanks-around-fences
+    "blanks-around-fences": false,
+    // MD032 - blanks-around-lists
+    "blanks-around-lists": false,
+    // MD033 - no-inline-html
+    "no-inline-html": false,
+    // MD034 - no-bare-urls
+    "no-bare-urls": true,
+    // MD035 - hr-style
+    "hr-style": {
+      "style": "consistent"
+    },
+    // MD036 - no-emphasis-as-heading
+    "no-emphasis-as-heading": false,
+    // MD037 - no-space-in-emphasis
+    "no-space-in-emphasis": true,
+    // MD038 - no-space-in-code
+    "no-space-in-code": true,
+    // MD039 - no-space-in-links
+    "no-space-in-links": true,
+    // MD040 - fenced-code-language
+    "fenced-code-language": false,
+    // MD041 - first-line-heading / first-line-h1
+    "first-line-heading": true,
+    // MD042 - no-empty-links
+    "no-empty-links": true,
+    // MD043 - required-headings (disabled - too many false positives)
+    "required-headings": false,
+    // MD044 - proper-names
+    "proper-names": {
+      "names": [],
+      "code_blocks": true,
+      "html_elements": true
+    },
+    // MD045 - no-alt-text
+    "no-alt-text": true,
+    // MD046 - code-block-style
+    "code-block-style": {
+      "style": "fenced"
+    },
+    // MD047 - single-trailing-newline
+    "single-trailing-newline": true,
+    // MD048 - code-fence-style
+    "code-fence-style": {
+      "style": "backtick"
+    },
+    // MD049 - emphasis-style
+    "emphasis-style": {
+      "style": "asterisk"
+    },
+    // MD050 - strong-style
+    "strong-style": {
+      "style": "asterisk"
+    },
+    // MD051 - link-fragments
+    "link-fragments": true,
+    // MD052 - reference-links-images
+    "reference-links-images": true,
+    // MD053 - link-image-reference-definitions
+    "link-image-reference-definitions": true,
+    // MD054 - link-image-style
+    "link-image-style": {
+      "autolink": false,
+      "inline": true,
+      "full": true,
+      "collapsed": true,
+      "shortcut": true,
+      "url_inline": true
+    },
+    // MD055 - table-pipe-style
+    "table-pipe-style": {
+      "style": "leading_and_trailing"
+    },
+    // MD056 - table-column-count
+    "table-column-count": true,
+    // MD057 - table-cell-padding (deprecated)
+    // MD058 - blanks-around-tables
+    "blanks-around-tables": true,
+    // MD059 - descriptive-link-text
+    "descriptive-link-text": {
+      "prohibited_texts": ["click here", "here", "link", "more"]
+    }
+  },
+  "globs": ["**/*.md", "!**/node_modules/**"]
+}

@@ -1,0 +1,149 @@
+[tools]
+bun = "latest"
+biome = "latest"
+lefthook = "latest"
+markdownlint-cli2 = "latest"
+taplo = "latest"
+usage = "latest"
+
+[settings]
+jobs = 24
+
+# =============================================================================
+# Development
+# =============================================================================
+
+[tasks.bun]
+run = "bun"
+description = "Run Bun"
+
+# =============================================================================
+# Testing
+# =============================================================================
+
+[tasks."test:unit"]
+run = "bun run test:unit"
+description = "Run unit tests (fast)"
+
+[tasks."test:integration"]
+run = "bun run test:integration"
+description = "Run integration tests (slow)"
+
+[tasks."test:full"]
+run = "bun run test:full"
+description = "Run full test suite"
+
+[tasks."test:coverage"]
+run = "bun run test:coverage"
+description = "Generate test coverage report"
+
+[tasks."test:ci"]
+run = "bun run test:ci"
+description = "Run test suite in CI mode"
+
+
+# =============================================================================
+# Linting - TypeScript/JSON
+# =============================================================================
+
+[tasks.ts-typecheck]
+run = "bun run typecheck"
+description = "Run TypeScript type checking"
+
+[tasks.biome-lint]
+run = "biome check"
+description = "Lint TypeScript and JSON files"
+
+[tasks.biome-lint-fix]
+run = "biome check --fix"
+description = "Lint and fix TypeScript and JSON files"
+
+# =============================================================================
+# Linting - Markdown
+# =============================================================================
+
+[tasks.markdown-lint]
+run = "markdownlint-cli2 '**/*.md'"
+description = "Lint Markdown files"
+
+[tasks.markdown-lint-fix]
+run = "markdownlint-cli2 '**/*.md' --fix"
+description = "Lint and fix Markdown files"
+
+# =============================================================================
+# Linting - TOML
+# =============================================================================
+
+[tasks.toml-lint]
+run = "taplo format --check && taplo lint"
+description = "Check TOML formatting and validate"
+
+[tasks.toml-lint-fix]
+run = "taplo format"
+description = "Format TOML files"
+
+# =============================================================================
+# Comprehensive Linting
+# =============================================================================
+
+[tasks.lint-all]
+depends = ["ts-typecheck", "biome-lint", "markdown-lint", "toml-lint"]
+description = "Run all linters (check only, no fixes)"
+run = "echo '✅ All linting checks passed!'"
+
+[tasks.lint-all-fix]
+depends = [
+  "ts-typecheck",
+  "biome-lint-fix",
+  "markdown-lint-fix",
+  "toml-lint-fix",
+]
+description = "Run all linters with fixes"
+run = "echo '✅ All linting checks passed!'"
+
+
+# =============================================================================
+# Schema Generation
+# =============================================================================
+
+[tasks.generate-schemas]
+run = "bun run scripts/generate-json-schemas.ts"
+description = "Generate JSON schemas from Zod"
+
+[tasks.validate-schemas]
+run = "bun run scripts/validate-schemas.ts"
+description = "Validate JSON schemas against examples"
+
+# =============================================================================
+# Quality Gates
+# =============================================================================
+
+[tasks.quality-check]
+depends = ["lint-all", "test", "generate-schemas", "validate-schemas"]
+description = "Run all quality checks (lint, test, schemas)"
+run = "echo '✨ All quality checks passed! Ready for commit.'"
+
+[tasks.pre-commit]
+depends = ["lint-all", "test"]
+description = "Pre-commit checks (fast)"
+run = "echo '✅ Pre-commit checks passed!'"
+
+[tasks.pre-push]
+depends = ["quality-check", "test-coverage"]
+description = "Pre-push checks (comprehensive)"
+run = "echo '✅ Pre-push checks passed!'"
+
+# =============================================================================
+# Utilities
+# =============================================================================
+
+[tasks.clean]
+run = """
+rm -rf dist coverage node_modules bun.lockb && \
+echo '✅ Build artifacts cleaned!'
+"""
+description = "Clean all build artifacts"
+
+[tasks.doctoc]
+run = "bunx doctoc --notitle --stdout"
+description = "Generate table of contents for markdown"

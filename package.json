@@ -1,0 +1,41 @@
+{
+  "name": "despec",
+  "version": "0.0.0",
+  "description": "Specification-Driven Development System with TypeScript SDK and LLM Integration",
+  "author": "mLewisLogic",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/cli.js",
+  "bin": {
+    "despec": "./dist/cli.js"
+  },
+  "scripts": {
+    "test:unit": "vitest run tests/unit/",
+    "test:integration": "vitest run tests/integration/",
+    "test:full": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --reporter=verbose",
+
+    "biome:check": "biome check .",
+    "biome:fix": "biome check --fix .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "nanoid": "latest",
+    "yaml": "latest",
+    "zod": "latest",
+    "zod-to-json-schema": "latest"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "@types/bun": "latest",
+    "@vitest/coverage-v8": "latest",
+    "lefthook": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  },
+  "engines": {
+    "bun": "latest"
+  }
+}
