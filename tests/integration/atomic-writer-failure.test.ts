@@ -12,7 +12,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { AtomicWriter } from "../../src/shared/atomic-writer.js";
 
-const TEST_DIR_BASE = "/tmp/despec-atomic-writer-failure-tests";
+const TEST_DIR_BASE = "/tmp/xdd-atomic-writer-failure-tests";
 
 describe("AtomicWriter - Failure Conditions", () => {
   let writer: AtomicWriter;

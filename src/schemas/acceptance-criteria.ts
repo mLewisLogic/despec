@@ -1,5 +1,5 @@
 /**
- * Acceptance criteria schemas for despec requirements.
+ * Acceptance criteria schemas for xdd requirements.
  * Supports both behavioral (Given-When-Then) and assertion formats.
  */
 

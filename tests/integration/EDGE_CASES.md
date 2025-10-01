@@ -1,4 +1,4 @@
-# Edge Cases Discovered in Despec Phase 0 Testing
+# Edge Cases Discovered in xdd Phase 0 Testing
 
 ## Critical Edge Cases (Bugs Found)
 

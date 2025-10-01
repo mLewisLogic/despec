@@ -6,7 +6,7 @@ import { Worker } from "node:worker_threads";
 import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join("/tmp", "despec-concurrent-tests", "atomic-writer");
+const TEST_DIR = path.join("/tmp", "xdd-concurrent-tests", "atomic-writer");
 
 describe("AtomicWriter - Concurrent Access Tests", () => {
   beforeEach(async () => {

@@ -3,7 +3,7 @@ import path from "node:path";
 import { nanoid } from "nanoid";
 
 /**
- * Test helper utilities for despec test suite
+ * Test helper utilities for xdd test suite
  */
 
 /**
@@ -28,7 +28,7 @@ export class TempDirectory {
   private created: Set<string> = new Set();
 
   constructor(baseName: string) {
-    this.baseDir = path.join("/tmp", `despec-test-${baseName}-${nanoid(8)}`);
+    this.baseDir = path.join("/tmp", `xdd-test-${baseName}-${nanoid(8)}`);
   }
 
   /**

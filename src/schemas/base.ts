@@ -1,5 +1,5 @@
 /**
- * Base schemas and constants for the despec system.
+ * Base schemas and constants for the xdd system.
  * Defines common validation patterns and ID formats.
  */
 

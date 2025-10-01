@@ -16,7 +16,7 @@ import path from "node:path";
 import { AtomicWriter } from "../../src/shared/atomic-writer";
 import { FileLock } from "../../src/shared/file-lock";
 
-const TEST_DIR = path.join("/tmp", "despec-concurrent-validation");
+const TEST_DIR = path.join("/tmp", "xdd-concurrent-validation");
 
 interface FileLockRunResult {
   runNumber: number;

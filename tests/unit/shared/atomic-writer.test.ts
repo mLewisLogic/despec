@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { AtomicWriter } from "../../../src/shared/atomic-writer.js";
 
-const TEST_DIR = "/tmp/despec-atomic-writer-tests";
+const TEST_DIR = "/tmp/xdd-atomic-writer-tests";
 
 describe("AtomicWriter", () => {
   let writer: AtomicWriter;

@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "despec",
+      "name": "xdd",
       "dependencies": {
         "@anthropic-ai/sdk": "^0.65.0",
         "nanoid": "^5.1.6",

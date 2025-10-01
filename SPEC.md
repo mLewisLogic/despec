@@ -1,4 +1,4 @@
-# Despec: Specification-Driven Development System (V2)
+# xdd: Specification-Driven Development System (V2)
 
 **Version**: 2.0.0
 **Status**: Design Phase
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Despec is a TypeScript-based specification-driven development system that transforms natural language requirements into structured, validated artifacts through three stages: **Specs**, **Design**, and **Tasks**. This is a complete V2 redesign with no backwards compatibility to the previous agent-sdd system.
+xdd is a TypeScript-based specification-driven development system that transforms natural language requirements into structured, validated artifacts through three stages: **Specs**, **Design**, and **Tasks**. This is a complete V2 redesign with no backwards compatibility to the previous agent-sdd system.
 
 **Core Innovation**: TypeScript SDK with Zod schemas enforces correctness at write-time, not validation-time. LLM agents use the SDK as a tool, eliminating ambiguity and enabling reliable automation.
 
@@ -68,7 +68,7 @@ TypeScript Tools (Zod validation)
         ↓
 Atomic Write Operations
         ↓
-YAML Artifacts (.despec/)
+YAML Artifacts (.xdd/)
         ↓
 Downstream Stages (Design, Tasks)
 ```
@@ -82,28 +82,28 @@ Downstream Stages (Design, Tasks)
 **Input**: Natural language requirements
 **Processing**: Parse into EARS-formatted, structured specifications
 **Output**: `specification.yaml` + `changelog.yaml`
-**Commands**: `despec specify "requirements"`
+**Commands**: `xdd specify "requirements"`
 
 ### Stage 2: Design (HOW to build it)
 
 **Input**: Specifications from Stage 1
 **Processing**: Component discovery, technology research, architectural decisions
 **Output**: Component designs, API specs, technology decisions
-**Commands**: `despec design-research`, `despec design-decide`, `despec design-document`
+**Commands**: `xdd design-research`, `xdd design-decide`, `xdd design-document`
 
 ### Stage 3: Tasks (BUILD the system)
 
 **Input**: Design specifications from Stage 2
 **Processing**: Task generation with TDD enforcement
 **Output**: Prioritized backlog with test-first workflow
-**Commands**: `despec tasks-generate`, `despec tasks-next`, `despec tasks-validate`
+**Commands**: `xdd tasks-generate`, `xdd tasks-next`, `xdd tasks-validate`
 
 ---
 
 ## Artifact Directory Structure
 
 ```
-.despec/                              # Project artifact directory
+.xdd/                              # Project artifact directory
 ├── 01-specs/
 │   ├── specification.yaml            # Current requirements
 │   ├── changelog.yaml                # Event log
@@ -124,7 +124,7 @@ Downstream Stages (Design, Tasks)
     └── 02-done/                      # Completed tasks
 ```
 
-**Note**: `.despec` is created in user projects. The despec repository itself can contain `.despec` for dogfooding.
+**Note**: `.xdd` is created in user projects. The xdd repository itself can contain `.xdd` for dogfooding.
 
 ---
 
@@ -243,9 +243,9 @@ Build the command-line interface:
 
 **Commands**:
 ```bash
-despec specify "Build web app with OAuth"  # Creates requirements
-despec validate                            # Validates specification
-despec query "list AUTH requirements"      # Queries data
+xdd specify "Build web app with OAuth"  # Creates requirements
+xdd validate                            # Validates specification
+xdd query "list AUTH requirements"      # Queries data
 ```
 
 ### Phase 4: Design Stage (5 days) - FUTURE
@@ -549,7 +549,7 @@ export class ChangelogManager {
 
   async appendEvent(event: ChangelogEvent): Promise<void> {
     const lock = new FileLock();
-    await lock.acquire('.despec/01-specs/changelog.yaml');
+    await lock.acquire('.xdd/01-specs/changelog.yaml');
 
     try {
       const changelog = await this.load();
@@ -566,10 +566,10 @@ export class ChangelogManager {
       // Atomic write
       const writer = new AtomicWriter();
       await writer.writeFiles([
-        { path: '.despec/01-specs/changelog.yaml', content: yaml.stringify(changelog) }
+        { path: '.xdd/01-specs/changelog.yaml', content: yaml.stringify(changelog) }
       ]);
     } finally {
-      await lock.release('.despec/01-specs/changelog.yaml');
+      await lock.release('.xdd/01-specs/changelog.yaml');
     }
   }
 
@@ -581,7 +581,7 @@ export class ChangelogManager {
       state: await this.computeCurrentState(changelog),
     };
 
-    const snapshotPath = `.despec/01-specs/snapshots/${snapshot.timestamp}.yaml`;
+    const snapshotPath = `.xdd/01-specs/snapshots/${snapshot.timestamp}.yaml`;
     await fs.writeFile(snapshotPath, yaml.stringify(snapshot));
   }
 }
@@ -595,25 +595,25 @@ export class ChangelogManager {
 
 ```bash
 # Initialize new project
-$ despec specify "Build a web app with OAuth authentication"
-# → Creates .despec/ directory
+$ xdd specify "Build a web app with OAuth authentication"
+# → Creates .xdd/ directory
 # → Generates specification.yaml
 # → Creates changelog.yaml
 
 # Add feature
-$ despec specify "Add real-time WebSocket notifications"
+$ xdd specify "Add real-time WebSocket notifications"
 # → Reads current spec
 # → Adds new requirement
 # → Updates YAML atomically
 
 # Validate
-$ despec validate
+$ xdd validate
 # → Checks schema compliance
 # → Verifies EARS format
 # → Reports issues
 
 # Query
-$ despec query "list AUTH requirements"
+$ xdd query "list AUTH requirements"
 # → Searches specifications
 # → Returns formatted results
 ```
@@ -627,8 +627,8 @@ All errors follow consistent format:
 
 Examples:
 ```
-[SPECS] Error: Lock acquisition timeout | Fix: Check for stale locks | Next: rm .despec/.locks/*
-[SPECS] Error: Invalid YAML characters | Fix: Remove special characters | Next: despec validate
+[SPECS] Error: Lock acquisition timeout | Fix: Check for stale locks | Next: rm .xdd/.locks/*
+[SPECS] Error: Invalid YAML characters | Fix: Remove special characters | Next: xdd validate
 ```
 
 ---
@@ -784,7 +784,7 @@ limits:
 2. **Phase 1**: Implement basic YAML operations
 3. **Phase 2**: Add LLM integration
 4. **Phase 3**: Build CLI
-5. **Then**: Use despec for future despec features
+5. **Then**: Use xdd for future xdd features
 
 ---
 

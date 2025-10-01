@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { AtomicWriter } from "../../src/shared/atomic-writer.js";
 
-const TEST_DIR = "/tmp/despec-atomic-writer-durability-tests";
+const TEST_DIR = "/tmp/xdd-atomic-writer-durability-tests";
 
 /**
  * Tests to verify the durability guarantees of AtomicWriter.

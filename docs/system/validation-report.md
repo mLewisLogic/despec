@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-Phase 0 critical infrastructure has been thoroughly validated through comprehensive testing, independent code reviews, and real multi-process stress testing. The implementation is production-ready for despec's target use case (local filesystem, solo/small team development) with documented limitations for network filesystems.
+Phase 0 critical infrastructure has been thoroughly validated through comprehensive testing, independent code reviews, and real multi-process stress testing. The implementation is production-ready for xdd's target use case (local filesystem, solo/small team development) with documented limitations for network filesystems.
 
 ### Key Results
 
@@ -140,7 +140,7 @@ Duration: ~8.2 seconds
 - ✅ Documented NFS limitations explicitly
 - ✅ Updated code comments to reflect reality
 - ✅ Re-validated with real processes (100% success)
-- ✅ Accepted 5/10 for general use, assert 6/10 for despec's specific use case
+- ✅ Accepted 5/10 for general use, assert 6/10 for xdd's specific use case
 
 ### QA Testing Assessment
 
@@ -203,7 +203,7 @@ Duration: ~8.2 seconds
 - Add filesystem detection (future enhancement)
 - Warn users if on network filesystem
 
-**Status**: DOCUMENTED, not blocking for despec's local-only use case
+**Status**: DOCUMENTED, not blocking for xdd's local-only use case
 
 ### Platform Testing (MEDIUM Priority)
 
@@ -271,7 +271,7 @@ Duration: ~8.2 seconds
 **To reach 8/10**:
 - ⏱️ Cross-platform validation (Windows, Linux, macOS)
 - ⏱️ Chaos testing (random process kills)
-- ⏱️ Battle-tested in actual despec usage
+- ⏱️ Battle-tested in actual xdd usage
 - ⏱️ Week-long soak test
 
 **To reach 9/10**:
@@ -284,11 +284,11 @@ Duration: ~8.2 seconds
 
 ### Suitable For ✅
 
-- ✅ Local filesystem development (despec's target)
+- ✅ Local filesystem development (xdd's target)
 - ✅ Solo developers and small teams
 - ✅ Internal tools on known infrastructure
 - ✅ Development and testing environments
-- ✅ Specifications under `.despec/` directory
+- ✅ Specifications under `.xdd/` directory
 
 ### NOT Suitable For ❌
 
@@ -298,15 +298,15 @@ Duration: ~8.2 seconds
 - ❌ Systems requiring formal correctness proofs
 - ❌ Multi-node distributed locking
 
-### Despec-Specific Assessment
+### xdd-Specific Assessment
 
-For despec's stated use case ("solo developers and small teams building internal tools"):
+For xdd's stated use case ("solo developers and small teams building internal tools"):
 
 **Status**: ✅ PRODUCTION READY
 
 **Reasoning**:
-1. Despec targets local development (not distributed systems)
-2. `.despec/` directories live alongside source code (local FS)
+1. xdd targets local development (not distributed systems)
+2. `.xdd/` directories live alongside source code (local FS)
 3. Target users are developers (can handle rare edge cases)
 4. Tool can fail gracefully (specification tool, not mission-critical)
 5. Zero data loss proven on local filesystems

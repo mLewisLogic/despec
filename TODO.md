@@ -1,4 +1,4 @@
-# Despec TODO
+# xdd TODO
 
 **Current Phase**: Phase 0 Has Critical Issues → Phase 1 Partially Complete
 **Last Updated**: 2025-10-01
@@ -338,7 +338,7 @@ Phase 0 is complete, but Phase 1+ needs to be built:
 - Hash-based IDs (collision risk)
 - Direct YAML writes (corruption risk)
 
-**Added in V2 (despec)**:
+**Added in V2 (xdd)**:
 - Real Anthropic SDK integration
 - nanoid for collision-resistant IDs
 - Atomic write operations
@@ -355,7 +355,7 @@ The correct approach:
 2. ⏱️ Phase 1: Implement basic YAML operations (NEXT)
 3. ⏱️ Phase 2: Add LLM integration
 4. ⏱️ Phase 3: Build CLI
-5. ⏱️ Then: Use despec for future despec features
+5. ⏱️ Then: Use xdd for future xdd features
 
 ### Confidence Levels (After Validation)
 

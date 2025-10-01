@@ -7,7 +7,7 @@ import { FileLock } from "../../src/shared/file-lock";
 import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join("/tmp", "despec-real-multiprocess-tests");
+const TEST_DIR = path.join("/tmp", "xdd-real-multiprocess-tests");
 const HELPERS_DIR = path.join(__dirname, "helpers");
 
 /**

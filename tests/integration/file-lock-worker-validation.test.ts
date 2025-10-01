@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 import { Worker } from "node:worker_threads";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join("/tmp", "despec-worker-validation");
+const TEST_DIR = path.join("/tmp", "xdd-worker-validation");
 
 interface WorkerResult {
   success: boolean;

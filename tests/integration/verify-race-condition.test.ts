@@ -6,7 +6,7 @@ import { Worker } from "node:worker_threads";
 import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join("/tmp", "despec-race-test");
+const TEST_DIR = path.join("/tmp", "xdd-race-test");
 
 interface WorkerResult {
   success: boolean;

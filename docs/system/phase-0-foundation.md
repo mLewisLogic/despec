@@ -6,7 +6,7 @@
 
 ## Overview
 
-Phase 0 establishes the foundational infrastructure for despec's specification-driven development system. This phase focuses on reliability, concurrency control, and data integrity - the critical building blocks upon which all future features depend.
+Phase 0 establishes the foundational infrastructure for xdd's specification-driven development system. This phase focuses on reliability, concurrency control, and data integrity - the critical building blocks upon which all future features depend.
 
 ## Deliverables
 
@@ -57,7 +57,7 @@ class FileLock {
 **Performance**: 87.55 ops/second under high contention (50 concurrent operations)
 
 **Design Philosophy**:
-> This implementation is optimized for the common despec use case: a single agent (human or AI) operating on specifications at a time. Lock directories provide good mutual exclusion on local filesystems through mkdir()'s exclusive create semantics. While not ACID-guaranteed, this is sufficient for preventing accidental concurrent modifications during normal single-agent operation.
+> This implementation is optimized for the common xdd use case: a single agent (human or AI) operating on specifications at a time. Lock directories provide good mutual exclusion on local filesystems through mkdir()'s exclusive create semantics. While not ACID-guaranteed, this is sufficient for preventing accidental concurrent modifications during normal single-agent operation.
 
 #### 3. InputValidator (`src/shared/input-validator.ts`)
 
@@ -208,7 +208,7 @@ await fs.rename(tempPath, finalPath);
 
 **Mitigation**: Detect and warn, or refuse to operate on network filesystems.
 
-**Status**: DOCUMENTED (not blocking for despec's local-only use case).
+**Status**: DOCUMENTED (not blocking for xdd's local-only use case).
 
 ### 2. PID Reuse (MEDIUM)
 
@@ -263,7 +263,7 @@ await fs.rename(tempPath, finalPath);
 ## Directory Structure
 
 ```
-despec/
+xdd/
 ├── src/
 │   └── shared/
 │       ├── atomic-writer.ts        # 248 lines
@@ -338,14 +338,14 @@ despec/
 **To reach 8/10**:
 - ⏱️ Cross-platform validation (Windows, Linux, macOS)
 - ⏱️ Chaos testing (random process kills)
-- ⏱️ Battle-tested in actual despec usage
+- ⏱️ Battle-tested in actual xdd usage
 - ⏱️ Week-long soak test
 
 ## Production Readiness
 
 ### Suitable For
 
-- ✅ Local filesystem development (despec's use case)
+- ✅ Local filesystem development (xdd's use case)
 - ✅ Solo developers and small teams
 - ✅ Internal tools on known infrastructure
 - ✅ Development and testing environments
@@ -407,7 +407,7 @@ From IMPLEMENTATION_CHECKLIST.md:
 
 ## Conclusion
 
-Phase 0 is **COMPLETE and VALIDATED** for despec's intended use case (local filesystem, solo/small team development).
+Phase 0 is **COMPLETE and VALIDATED** for xdd's intended use case (local filesystem, solo/small team development).
 
 **Key Achievements**:
 1. ✅ Eliminated TOCTOU race condition (100% success rate)

@@ -6,7 +6,7 @@ import { Worker } from "node:worker_threads";
 import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join("/tmp", "despec-concurrent-tests", "file-lock");
+const TEST_DIR = path.join("/tmp", "xdd-concurrent-tests", "file-lock");
 
 describe("FileLock - Concurrent Access Tests", () => {
   beforeEach(async () => {

@@ -3,7 +3,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { FileLock } from "../../../src/shared/file-lock.js";
 
-const TEST_DIR = "/tmp/despec-file-lock-tests";
+const TEST_DIR = "/tmp/xdd-file-lock-tests";
 
 describe("FileLock", () => {
   beforeEach(async () => {

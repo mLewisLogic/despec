@@ -1,4 +1,4 @@
-# Despec
+# xdd
 
 **Specification-Driven Development System V2**
 
@@ -17,18 +17,18 @@ bun x lefthook install
 mise run dev
 
 # Initialize project with specifications (coming in Phase 1)
-despec specify "Build a web application with OAuth authentication and PostgreSQL storage"
+xdd specify "Build a web application with OAuth authentication and PostgreSQL storage"
 
 # Add features (coming in Phase 1)
-despec specify "Add real-time WebSocket notifications"
+xdd specify "Add real-time WebSocket notifications"
 
 # Validate (coming in Phase 1)
-despec validate
+xdd validate
 ```
 
-## What is Despec?
+## What is xdd?
 
-Despec is a three-stage pipeline for transforming ideas into implementation:
+xdd is a three-stage pipeline for transforming ideas into implementation:
 
 1. **Specs Stage**: Natural language → Structured requirements (EARS format)
 2. **Design Stage**: Requirements → Component architecture and technical decisions
@@ -49,17 +49,17 @@ Despec is a three-stage pipeline for transforming ideas into implementation:
 - 🚧 **Type-Safe**: Zod schemas validate at write-time
 - 🚧 **Event Sourcing**: Complete audit trail of all changes
 - 🚧 **LLM-Powered**: Claude integration for semantic understanding
-- 🚧 **Single Command**: `despec specify "..."` does it all
+- 🚧 **Single Command**: `xdd specify "..."` does it all
 - 🚧 **Deterministic IDs**: nanoid-based requirement IDs
 
 ## Installation
 
 ```bash
 # Using Bun (recommended)
-bun install -g despec
+bun install -g xdd
 
 # Using npm
-npm install -g despec
+npm install -g xdd
 ```
 
 ## Documentation
@@ -127,7 +127,7 @@ lefthook run pre-commit --all-files
 ## Project Structure
 
 ```
-.despec/                    # Generated artifacts
+.xdd/                    # Generated artifacts
 ├── 01-specs/
 │   ├── specification.yaml
 │   └── changelog.yaml

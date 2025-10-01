@@ -1,5 +1,5 @@
 /**
- * Despec schemas module.
+ * xdd schemas module.
  * Comprehensive Zod schemas for the specification-driven development system.
  *
  * This module provides:

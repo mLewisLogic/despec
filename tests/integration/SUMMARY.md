@@ -1,4 +1,4 @@
-# Despec Phase 0 Failure Testing - Executive Summary
+# xdd Phase 0 Failure Testing - Executive Summary
 
 **Date**: 2025-09-30
 **Tester**: QA Testing & Debugging Expert (Claude)
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Comprehensive failure condition testing was performed on the Despec Phase 0 utility classes (AtomicWriter, FileLock, ErrorHandler) to validate behavior under adverse conditions including disk failures, permission issues, race conditions, and error recovery scenarios.
+Comprehensive failure condition testing was performed on the xdd Phase 0 utility classes (AtomicWriter, FileLock, ErrorHandler) to validate behavior under adverse conditions including disk failures, permission issues, race conditions, and error recovery scenarios.
 
 ## Test Results Summary
 

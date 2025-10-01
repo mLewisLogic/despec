@@ -1,4 +1,4 @@
-# Despec System Documentation
+# xdd System Documentation
 
 **Status**: Phase 0 Complete
 **Version**: 2.0.0
@@ -6,7 +6,7 @@
 
 ## What's Actually Built (Phase 0)
 
-Despec Phase 0 delivers the foundational infrastructure required for safe, concurrent file operations in a specification-driven development system.
+xdd Phase 0 delivers the foundational infrastructure required for safe, concurrent file operations in a specification-driven development system.
 
 ### Core Infrastructure
 
@@ -171,6 +171,6 @@ Phase 1 can begin once:
 
 ## References
 
-- [SPEC.md](/Users/logic/code/mLewisLogic/despec/SPEC.md) - Complete system specification
-- [IMPLEMENTATION_CHECKLIST.md](/Users/logic/code/mLewisLogic/despec/IMPLEMENTATION_CHECKLIST.md) - Phase 1 checklist
-- [docs/reports/](/Users/logic/code/mLewisLogic/despec/docs/reports/) - QA and validation reports
+- [SPEC.md](/Users/logic/code/mLewisLogic/xdd/SPEC.md) - Complete system specification
+- [IMPLEMENTATION_CHECKLIST.md](/Users/logic/code/mLewisLogic/xdd/IMPLEMENTATION_CHECKLIST.md) - Phase 1 checklist
+- [docs/reports/](/Users/logic/code/mLewisLogic/xdd/docs/reports/) - QA and validation reports

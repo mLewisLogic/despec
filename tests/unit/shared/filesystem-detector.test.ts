@@ -40,7 +40,7 @@ describe("FilesystemDetector", () => {
     });
 
     it("handles non-existent paths by checking parent directory", async () => {
-      const nonExistentPath = "/tmp/despec-test-nonexistent-path-12345";
+      const nonExistentPath = "/tmp/xdd-test-nonexistent-path-12345";
       const fsInfo = await detectFilesystem(nonExistentPath);
 
       expect(fsInfo).toBeDefined();

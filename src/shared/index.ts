@@ -1,5 +1,5 @@
 /**
- * Shared utilities for the despec system.
+ * Shared utilities for the xdd system.
  * Provides core functionality for atomic file operations, concurrency control,
  * input validation, and error handling.
  */

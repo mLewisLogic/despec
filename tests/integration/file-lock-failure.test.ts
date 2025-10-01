@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { FileLock } from "../../src/shared/file-lock.js";
 
-const TEST_DIR = "/tmp/despec-file-lock-failure-tests";
+const TEST_DIR = "/tmp/xdd-file-lock-failure-tests";
 
 describe("FileLock - Failure Conditions", () => {
   beforeEach(async () => {

@@ -1,5 +1,5 @@
 {
-  "name": "despec",
+  "name": "xdd",
   "version": "0.0.0",
   "description": "Specification-Driven Development System with TypeScript SDK and LLM Integration",
   "author": "mLewisLogic",
@@ -7,7 +7,7 @@
   "type": "module",
   "main": "./dist/cli.js",
   "bin": {
-    "despec": "./dist/cli.js"
+    "xdd": "./dist/cli.js"
   },
   "scripts": {},
   "dependencies": {

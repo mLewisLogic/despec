@@ -1,6 +1,6 @@
-# Despec Test Infrastructure
+# xdd Test Infrastructure
 
-Comprehensive test suite for the despec project with multiple test tiers optimized for different scenarios.
+Comprehensive test suite for the xdd project with multiple test tiers optimized for different scenarios.
 
 ## Test Organization
 

@@ -11,7 +11,7 @@
       "**/*.json",
       "**/*.jsonc",
       "**/*.ts",
-      "!**/.despec",
+      "!**/.xdd",
       "!**/dist",
       "!**/node_modules"
     ]

@@ -1,5 +1,5 @@
 /**
- * Requirement schema for despec specifications.
+ * Requirement schema for xdd specifications.
  * Defines the structure and validation for individual requirements.
  */
 

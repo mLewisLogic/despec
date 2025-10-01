@@ -331,7 +331,7 @@ describe("ErrorHandler", () => {
         timeout: 5000,
       });
       expect(error.fix).toContain("stale locks");
-      expect(error.next).toContain("rm .despec/.locks/*");
+      expect(error.next).toContain("rm .xdd/.locks/*");
     });
   });
 
@@ -351,7 +351,7 @@ describe("ErrorHandler", () => {
         reason: "must be alphanumeric",
       });
       expect(error.fix).toBeDefined();
-      expect(error.next).toContain("despec validate");
+      expect(error.next).toContain("xdd validate");
     });
   });
 });

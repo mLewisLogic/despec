@@ -1,5 +1,5 @@
 /**
- * Project metadata schema for despec projects.
+ * Project metadata schema for xdd projects.
  * Defines the structure and validation for project-level information.
  */
 
@@ -8,7 +8,7 @@ import { DateTimeSchema, VALIDATION_LIMITS } from "./base.js";
 
 /**
  * Project metadata schema.
- * Contains basic information about a despec project.
+ * Contains basic information about a xdd project.
  *
  * @example
  * ```typescript

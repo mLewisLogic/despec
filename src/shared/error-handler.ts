@@ -419,7 +419,7 @@ export class ErrorHandler {
       ...(cause && { cause }),
       context: { resourcePath, timeout },
       fix: "Check for stale locks",
-      next: "rm .despec/.locks/*",
+      next: "rm .xdd/.locks/*",
     });
   }
 
@@ -437,7 +437,7 @@ export class ErrorHandler {
       category: ErrorCategory.VALIDATION,
       context: { field, reason },
       fix: "Correct the input and try again",
-      next: "despec validate",
+      next: "xdd validate",
     });
   }
 }
