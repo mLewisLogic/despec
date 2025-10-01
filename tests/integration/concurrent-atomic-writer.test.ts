@@ -1,14 +1,14 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Worker } from 'node:worker_threads';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { getIterationCount } from '../utils/test-helpers';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Worker } from "node:worker_threads";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join('/tmp', 'despec-concurrent-tests', 'atomic-writer');
+const TEST_DIR = path.join("/tmp", "despec-concurrent-tests", "atomic-writer");
 
-describe('AtomicWriter - Concurrent Access Tests', () => {
+describe("AtomicWriter - Concurrent Access Tests", () => {
   beforeEach(async () => {
     // Clean up and create test directory
     await fs.rm(TEST_DIR, { recursive: true, force: true });
@@ -20,15 +20,15 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
   });
 
-  it('should handle multiple processes writing to the same file without corruption', async () => {
-    const testFile = path.join(TEST_DIR, 'concurrent-test.txt');
+  it("should handle multiple processes writing to the same file without corruption", async () => {
+    const testFile = path.join(TEST_DIR, "concurrent-test.txt");
     // Reduced iterations for faster standard tests, full load for stress tests
     const numWorkers = getIterationCount(5, 20);
     const writesPerWorker = getIterationCount(10, 50);
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { AtomicWriter } = require('${path.resolve(__dirname, '../../dist/shared/atomic-writer.cjs')}');
+      const { AtomicWriter } = require('${path.resolve(__dirname, "../../dist/shared/atomic-writer.cjs")}');
 
       async function run() {
         const writer = new AtomicWriter();
@@ -90,8 +90,8 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
       workers.push(worker);
 
       const promise = new Promise((resolve, reject) => {
-        worker.on('message', resolve);
-        worker.on('error', reject);
+        worker.on("message", resolve);
+        worker.on("error", reject);
       });
 
       workerPromises.push(promise);
@@ -123,7 +123,7 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
     }
 
     // Verify the file exists and contains valid data
-    const finalContent = await fs.readFile(testFile, 'utf8');
+    const finalContent = await fs.readFile(testFile, "utf8");
     expect(finalContent).toBeTruthy();
     expect(finalContent).toMatch(/Worker-\d+-Write-\d+/);
 
@@ -132,7 +132,7 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
     const maxWriteDuration = Math.max(...writeDurations);
     const minWriteDuration = Math.min(...writeDurations);
 
-    console.log('\n=== Concurrent AtomicWriter Performance ===');
+    console.log("\n=== Concurrent AtomicWriter Performance ===");
     console.log(`Total writes attempted: ${totalWrites}`);
     console.log(`Successful writes: ${successfulWrites}`);
     console.log(`Failed writes: ${failedWrites}`);
@@ -152,7 +152,7 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
     }
   }, 30000); // 30 second timeout for this test
 
-  it('should maintain data integrity with rapid concurrent writes to multiple files', async () => {
+  it("should maintain data integrity with rapid concurrent writes to multiple files", async () => {
     // Reduced for faster standard tests
     const numFiles = getIterationCount(3, 10);
     const numWorkers = getIterationCount(5, 15);
@@ -160,7 +160,7 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { AtomicWriter } = require('${path.resolve(__dirname, '../../dist/shared/atomic-writer.cjs')}');
+      const { AtomicWriter } = require('${path.resolve(__dirname, "../../dist/shared/atomic-writer.cjs")}');
 
       async function run() {
         const writer = new AtomicWriter();
@@ -210,8 +210,8 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
       workers.push(worker);
 
       const promise = new Promise((resolve, reject) => {
-        worker.on('message', resolve);
-        worker.on('error', reject);
+        worker.on("message", resolve);
+        worker.on("error", reject);
       });
 
       workerPromises.push(promise);
@@ -239,7 +239,7 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
     for (let i = 0; i < numFiles; i++) {
       const filePath = path.join(TEST_DIR, `file-${i}.txt`);
       try {
-        const content = await fs.readFile(filePath, 'utf8');
+        const content = await fs.readFile(filePath, "utf8");
         expect(content).toMatch(/Worker-\d+-File-\d+-Write-\d+-\d+/);
         console.log(`File ${i}: ${fileWrites.get(i) || 0} writes`);
       } catch (_error) {
@@ -254,14 +254,14 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
     }
   }, 30000);
 
-  it('should handle batch writes atomically under concurrent load', async () => {
+  it("should handle batch writes atomically under concurrent load", async () => {
     // Reduced for faster standard tests
     const numWorkers = getIterationCount(3, 10);
     const batchSize = getIterationCount(3, 5);
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { AtomicWriter } = require('${path.resolve(__dirname, '../../dist/shared/atomic-writer.cjs')}');
+      const { AtomicWriter } = require('${path.resolve(__dirname, "../../dist/shared/atomic-writer.cjs")}');
 
       async function run() {
         const writer = new AtomicWriter();
@@ -314,8 +314,8 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
       workers.push(worker);
 
       const promise = new Promise((resolve, reject) => {
-        worker.on('message', resolve);
-        worker.on('error', reject);
+        worker.on("message", resolve);
+        worker.on("error", reject);
       });
 
       workerPromises.push(promise);
@@ -341,12 +341,12 @@ describe('AtomicWriter - Concurrent Access Tests', () => {
 
     const avgBatchDuration = batchDurations.reduce((a, b) => a + b, 0) / batchDurations.length;
 
-    console.log('\n=== Batch AtomicWriter Performance ===');
+    console.log("\n=== Batch AtomicWriter Performance ===");
     console.log(`Total files written: ${totalFilesWritten}`);
     console.log(`Total duration: ${totalDuration.toFixed(2)}ms`);
     console.log(`Average batch duration: ${avgBatchDuration.toFixed(2)}ms`);
     console.log(
-      `Throughput: ${(totalFilesWritten / (totalDuration / 1000)).toFixed(2)} files/second`
+      `Throughput: ${(totalFilesWritten / (totalDuration / 1000)).toFixed(2)} files/second`,
     );
 
     expect(totalFilesWritten).toBe(numWorkers * batchSize);

@@ -1,14 +1,14 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Worker } from 'node:worker_threads';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { getIterationCount } from '../utils/test-helpers';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Worker } from "node:worker_threads";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join('/tmp', 'despec-concurrent-tests', 'file-lock');
+const TEST_DIR = path.join("/tmp", "despec-concurrent-tests", "file-lock");
 
-describe('FileLock - Concurrent Access Tests', () => {
+describe("FileLock - Concurrent Access Tests", () => {
   beforeEach(async () => {
     // Clean up and create test directory
     await fs.rm(TEST_DIR, { recursive: true, force: true });
@@ -20,15 +20,15 @@ describe('FileLock - Concurrent Access Tests', () => {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
   });
 
-  it('should ensure mutual exclusion - only one process can hold lock at a time', async () => {
-    const resourcePath = path.join(TEST_DIR, 'shared-resource.txt');
+  it("should ensure mutual exclusion - only one process can hold lock at a time", async () => {
+    const resourcePath = path.join(TEST_DIR, "shared-resource.txt");
     // Reduced iterations for faster standard tests
     const numWorkers = getIterationCount(2, 5);
     const operationsPerWorker = getIterationCount(3, 5);
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { FileLock } = require('${path.resolve(__dirname, '../../dist/shared/file-lock.cjs')}');
+      const { FileLock } = require('${path.resolve(__dirname, "../../dist/shared/file-lock.cjs")}');
       const fs = require('fs/promises');
 
       async function run() {
@@ -112,7 +112,7 @@ describe('FileLock - Concurrent Access Tests', () => {
     const workerPromises: Promise<any>[] = [];
 
     console.log(
-      `Starting ${numWorkers} workers, each performing ${operationsPerWorker} lock operations...`
+      `Starting ${numWorkers} workers, each performing ${operationsPerWorker} lock operations...`,
     );
     const startTime = performance.now();
 
@@ -130,8 +130,8 @@ describe('FileLock - Concurrent Access Tests', () => {
       workers.push(worker);
 
       const promise = new Promise((resolve, reject) => {
-        worker.on('message', resolve);
-        worker.on('error', reject);
+        worker.on("message", resolve);
+        worker.on("error", reject);
       });
 
       workerPromises.push(promise);
@@ -168,7 +168,7 @@ describe('FileLock - Concurrent Access Tests', () => {
     }
 
     // Verify mutual exclusion - final value should equal total successful operations
-    const finalValue = await fs.readFile(resourcePath, 'utf8');
+    const finalValue = await fs.readFile(resourcePath, "utf8");
     const finalCount = parseInt(finalValue, 10);
 
     // Calculate statistics
@@ -177,7 +177,7 @@ describe('FileLock - Concurrent Access Tests', () => {
     const minWaitDuration = Math.min(...waitDurations);
     const avgHoldDuration = holdDurations.reduce((a, b) => a + b, 0) / holdDurations.length;
 
-    console.log('\n=== Concurrent FileLock Performance ===');
+    console.log("\n=== Concurrent FileLock Performance ===");
     console.log(`Total operations attempted: ${totalOperations}`);
     console.log(`Successful operations: ${successfulOperations}`);
     console.log(`Failed operations: ${failedOperations}`);
@@ -189,7 +189,7 @@ describe('FileLock - Concurrent Access Tests', () => {
     console.log(`Max wait duration: ${maxWaitDuration}ms`);
     console.log(`Average hold duration: ${avgHoldDuration.toFixed(2)}ms`);
     console.log(
-      `Throughput: ${(successfulOperations / (totalDuration / 1000)).toFixed(2)} ops/second`
+      `Throughput: ${(successfulOperations / (totalDuration / 1000)).toFixed(2)} ops/second`,
     );
 
     // Critical assertion - mutual exclusion should be maintained
@@ -207,15 +207,15 @@ describe('FileLock - Concurrent Access Tests', () => {
     }
   }, 30000); // 30 second timeout
 
-  it.skip('should handle rapid lock acquire/release cycles efficiently', async () => {
-    const resourcePath = path.join(TEST_DIR, 'rapid-lock.txt');
+  it.skip("should handle rapid lock acquire/release cycles efficiently", async () => {
+    const resourcePath = path.join(TEST_DIR, "rapid-lock.txt");
     // Reduced iterations for faster standard tests
     const numWorkers = getIterationCount(2, 3);
     const cyclesPerWorker = getIterationCount(5, 10);
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { FileLock } = require('${path.resolve(__dirname, '../../dist/shared/file-lock.cjs')}');
+      const { FileLock } = require('${path.resolve(__dirname, "../../dist/shared/file-lock.cjs")}');
 
       async function run() {
         const lock = new FileLock();
@@ -257,7 +257,7 @@ describe('FileLock - Concurrent Access Tests', () => {
     const workerPromises: Promise<any>[] = [];
 
     console.log(
-      `\nStarting ${numWorkers} workers with ${cyclesPerWorker} rapid lock cycles each...`
+      `\nStarting ${numWorkers} workers with ${cyclesPerWorker} rapid lock cycles each...`,
     );
     const startTime = performance.now();
 
@@ -275,8 +275,8 @@ describe('FileLock - Concurrent Access Tests', () => {
       workers.push(worker);
 
       const promise = new Promise((resolve, reject) => {
-        worker.on('message', resolve);
-        worker.on('error', reject);
+        worker.on("message", resolve);
+        worker.on("error", reject);
       });
 
       workerPromises.push(promise);
@@ -308,7 +308,7 @@ describe('FileLock - Concurrent Access Tests', () => {
     const maxCycleDuration = Math.max(...cycleDurations);
     const minCycleDuration = Math.min(...cycleDurations);
 
-    console.log('\n=== Rapid Lock Cycle Performance ===');
+    console.log("\n=== Rapid Lock Cycle Performance ===");
     console.log(`Total cycles: ${totalCycles}`);
     console.log(`Successful cycles: ${successfulCycles}`);
     console.log(`Success rate: ${((successfulCycles / totalCycles) * 100).toFixed(2)}%`);
@@ -326,14 +326,14 @@ describe('FileLock - Concurrent Access Tests', () => {
     }
   }, 30000);
 
-  it.skip('should properly handle lock queue and fairness under high contention', async () => {
-    const resourcePath = path.join(TEST_DIR, 'queue-test.txt');
+  it.skip("should properly handle lock queue and fairness under high contention", async () => {
+    const resourcePath = path.join(TEST_DIR, "queue-test.txt");
     // Reduced for faster standard tests
     const numWorkers = getIterationCount(3, 5);
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { FileLock } = require('${path.resolve(__dirname, '../../dist/shared/file-lock.cjs')}');
+      const { FileLock } = require('${path.resolve(__dirname, "../../dist/shared/file-lock.cjs")}');
       const fs = require('fs/promises');
 
       async function run() {
@@ -414,8 +414,8 @@ describe('FileLock - Concurrent Access Tests', () => {
       workers.push(worker);
 
       const promise = new Promise((resolve, reject) => {
-        worker.on('message', resolve);
-        worker.on('error', reject);
+        worker.on("message", resolve);
+        worker.on("error", reject);
       });
 
       workerPromises.push(promise);
@@ -447,11 +447,11 @@ describe('FileLock - Concurrent Access Tests', () => {
     // Sort by order to see the acquisition sequence
     workerOrders.sort((a, b) => a.order - b.order);
 
-    console.log('\n=== Lock Queue Fairness ===');
-    console.log('Worker acquisition order:');
+    console.log("\n=== Lock Queue Fairness ===");
+    console.log("Worker acquisition order:");
     for (const wo of workerOrders) {
       console.log(
-        `  Worker ${wo.workerId}: Order=${wo.order}, AcquireTime=${wo.acquireTime}ms, StartDelay=${wo.startDelay}ms`
+        `  Worker ${wo.workerId}: Order=${wo.order}, AcquireTime=${wo.acquireTime}ms, StartDelay=${wo.startDelay}ms`,
       );
     }
 
@@ -468,21 +468,21 @@ describe('FileLock - Concurrent Access Tests', () => {
     }
   }, 30000);
 
-  it.skip('should detect and clean up stale locks from crashed processes', async () => {
-    const resourcePath = path.join(TEST_DIR, 'stale-lock-test.txt');
+  it.skip("should detect and clean up stale locks from crashed processes", async () => {
+    const resourcePath = path.join(TEST_DIR, "stale-lock-test.txt");
     const lockPath = `${resourcePath}.lock`;
 
     // Create a "stale" lock directory with metadata
     await fs.mkdir(lockPath);
     await fs.writeFile(
-      path.join(lockPath, 'metadata.json'),
+      path.join(lockPath, "metadata.json"),
       JSON.stringify({
         pid: 99999, // Non-existent PID
-        hostname: 'crashed-host',
-        lockId: 'stale-lock-id-12345',
+        hostname: "crashed-host",
+        lockId: "stale-lock-id-12345",
         timestamp: Date.now() - 60000, // 60 seconds ago
       }),
-      'utf8'
+      "utf8",
     );
 
     // Set the lock directory's modified time to be very old
@@ -491,7 +491,7 @@ describe('FileLock - Concurrent Access Tests', () => {
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { FileLock } = require('${path.resolve(__dirname, '../../dist/shared/file-lock.cjs')}');
+      const { FileLock } = require('${path.resolve(__dirname, "../../dist/shared/file-lock.cjs")}');
 
       async function run() {
         const lock = new FileLock();
@@ -529,7 +529,7 @@ describe('FileLock - Concurrent Access Tests', () => {
       });
     `;
 
-    console.log('\nTesting stale lock detection and cleanup...');
+    console.log("\nTesting stale lock detection and cleanup...");
 
     const worker = new Worker(workerCode, {
       eval: true,
@@ -537,8 +537,8 @@ describe('FileLock - Concurrent Access Tests', () => {
     });
 
     const result = (await new Promise((resolve, reject) => {
-      worker.on('message', resolve);
-      worker.on('error', reject);
+      worker.on("message", resolve);
+      worker.on("error", reject);
     })) as {
       success: boolean;
       result?: { success: boolean; staleLockCleaned: boolean; acquireTime: number };
@@ -554,8 +554,8 @@ describe('FileLock - Concurrent Access Tests', () => {
     await worker.terminate();
   }, 20000);
 
-  it.skip('should measure lock contention impact on performance', async () => {
-    const resourcePath = path.join(TEST_DIR, 'contention-test.txt');
+  it.skip("should measure lock contention impact on performance", async () => {
+    const resourcePath = path.join(TEST_DIR, "contention-test.txt");
     // Reduced for faster standard tests
     const contentionLevels = [1, 2]; // Different numbers of concurrent workers
     const operationsPerWorker = getIterationCount(3, 5);
@@ -564,7 +564,7 @@ describe('FileLock - Concurrent Access Tests', () => {
     for (const numWorkers of contentionLevels) {
       const workerCode = `
         const { parentPort, workerData } = require('worker_threads');
-        const { FileLock } = require('${path.resolve(__dirname, '../../dist/shared/file-lock.cjs')}');
+        const { FileLock } = require('${path.resolve(__dirname, "../../dist/shared/file-lock.cjs")}');
 
         async function run() {
           const lock = new FileLock();
@@ -611,8 +611,8 @@ describe('FileLock - Concurrent Access Tests', () => {
         workers.push(worker);
 
         const promise = new Promise((resolve, reject) => {
-          worker.on('message', resolve);
-          worker.on('error', reject);
+          worker.on("message", resolve);
+          worker.on("error", reject);
         });
 
         workerPromises.push(promise);
@@ -649,12 +649,12 @@ describe('FileLock - Concurrent Access Tests', () => {
       }
     }
 
-    console.log('\n=== Lock Contention Impact on Performance ===');
-    console.log('Workers | Avg Duration | P95 Duration | Throughput');
-    console.log('--------|--------------|--------------|------------');
+    console.log("\n=== Lock Contention Impact on Performance ===");
+    console.log("Workers | Avg Duration | P95 Duration | Throughput");
+    console.log("--------|--------------|--------------|------------");
     for (const r of results) {
       console.log(
-        `${r.workers.toString().padEnd(7)} | ${r.avgDuration.toFixed(2).padEnd(12)}ms | ${r.p95Duration.toFixed(2).padEnd(12)}ms | ${r.throughput.toFixed(2)} ops/s`
+        `${r.workers.toString().padEnd(7)} | ${r.avgDuration.toFixed(2).padEnd(12)}ms | ${r.p95Duration.toFixed(2).padEnd(12)}ms | ${r.throughput.toFixed(2)} ops/s`,
       );
     }
 

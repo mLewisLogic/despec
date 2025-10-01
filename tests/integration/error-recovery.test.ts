@@ -1,15 +1,15 @@
-import { beforeEach, describe, expect, test } from 'vitest';
-import { ErrorHandler } from '../../src/shared/error-handler.js';
+import { beforeEach, describe, expect, test } from "vitest";
+import { ErrorHandler } from "../../src/shared/error-handler.js";
 
-describe('ErrorHandler - Retry Logic & Recovery', () => {
+describe("ErrorHandler - Retry Logic & Recovery", () => {
   let handler: ErrorHandler;
 
   beforeEach(() => {
     handler = new ErrorHandler();
   });
 
-  describe('Retry Logic with Various Failure Patterns', () => {
-    test('intermittent failures - succeeds on random retry', async () => {
+  describe("Retry Logic with Various Failure Patterns", () => {
+    test("intermittent failures - succeeds on random retry", async () => {
       let attempts = 0;
       const failPattern = [true, true, false, true, false]; // Fails 1st, 2nd, 4th attempts
 
@@ -18,19 +18,19 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           const shouldFail = failPattern[attempts];
           attempts++;
           if (shouldFail) {
-            throw new Error('Intermittent failure');
+            throw new Error("Intermittent failure");
           }
-          return 'success';
+          return "success";
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('success');
+      expect(result.value).toBe("success");
       expect(attempts).toBe(3); // Failed twice, succeeded on 3rd
     });
 
-    test('gradual recovery - increases success probability', async () => {
+    test("gradual recovery - increases success probability", async () => {
       let attempts = 0;
       const successProbability = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
 
@@ -40,22 +40,22 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           attempts++;
           // Always succeed when we reach high enough probability
           if (Math.random() < threshold || threshold >= 0.8) {
-            return 'success';
+            return "success";
           }
-          throw new Error('Not ready yet');
+          throw new Error("Not ready yet");
         },
-        { maxRetries: 10, initialDelay: 10 }
+        { maxRetries: 10, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('success');
+      expect(result.value).toBe("success");
       expect(attempts).toBeGreaterThan(0);
       expect(attempts).toBeLessThanOrEqual(11);
     });
 
-    test('alternating error types', async () => {
+    test("alternating error types", async () => {
       let attempts = 0;
-      const errors = ['ETIMEDOUT', 'ECONNRESET', 'EAGAIN', 'EBUSY'];
+      const errors = ["ETIMEDOUT", "ECONNRESET", "EAGAIN", "EBUSY"];
 
       const result = await handler.withRetry(
         async () => {
@@ -63,22 +63,22 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           if (attempts <= errors.length) {
             throw new Error(errors[attempts - 1]);
           }
-          return 'recovered';
+          return "recovered";
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('recovered');
+      expect(result.value).toBe("recovered");
       expect(attempts).toBe(errors.length + 1);
     });
 
-    test('fails fast on non-retryable error', async () => {
+    test("fails fast on non-retryable error", async () => {
       let attempts = 0;
       const errors = [
-        'ETIMEDOUT', // Retryable
-        'Validation failed', // Non-retryable
-        'ECONNRESET', // Would be retryable but shouldn't reach
+        "ETIMEDOUT", // Retryable
+        "Validation failed", // Non-retryable
+        "ECONNRESET", // Would be retryable but shouldn't reach
       ];
 
       const result = await handler.withRetry(
@@ -87,33 +87,33 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           attempts++;
           throw new Error(error);
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(false);
       expect(attempts).toBe(2); // Stopped after non-retryable error
-      expect(result.error?.message).toContain('Validation failed');
+      expect(result.error?.message).toContain("Validation failed");
     });
 
-    test('complex retry condition - custom isRetryable', async () => {
+    test("complex retry condition - custom isRetryable", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
           if (attempts % 2 === 0) {
-            throw new Error('EVEN_ERROR');
+            throw new Error("EVEN_ERROR");
           }
           if (attempts < 5) {
-            throw new Error('ODD_ERROR');
+            throw new Error("ODD_ERROR");
           }
-          return 'success';
+          return "success";
         },
         {
           maxRetries: 10,
           initialDelay: 10,
-          isRetryable: (error) => error.message === 'ODD_ERROR',
-        }
+          isRetryable: (error) => error.message === "ODD_ERROR",
+        },
       );
 
       expect(result.success).toBe(false); // Should fail on first EVEN_ERROR
@@ -121,8 +121,8 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
     });
   });
 
-  describe('Exponential Backoff Behavior', () => {
-    test('verifies increasing delays', async () => {
+  describe("Exponential Backoff Behavior", () => {
+    test("verifies increasing delays", async () => {
       let attempts = 0;
       const attemptTimes: number[] = [];
 
@@ -131,15 +131,15 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           attemptTimes.push(Date.now());
           attempts++;
           if (attempts < 4) {
-            throw new Error('Retry me');
+            throw new Error("Retry me");
           }
-          return 'done';
+          return "done";
         },
         {
           maxRetries: 4,
           initialDelay: 100,
           backoffMultiplier: 2,
-        }
+        },
       );
 
       // Calculate delays between attempts
@@ -160,7 +160,7 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       expect(delays[2]).toBeLessThan(500);
     });
 
-    test('verifies max delay cap is enforced', async () => {
+    test("verifies max delay cap is enforced", async () => {
       let attempts = 0;
       const attemptTimes: number[] = [];
 
@@ -169,16 +169,16 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           attemptTimes.push(Date.now());
           attempts++;
           if (attempts < 5) {
-            throw new Error('Retry me');
+            throw new Error("Retry me");
           }
-          return 'done';
+          return "done";
         },
         {
           maxRetries: 5,
           initialDelay: 100,
           backoffMultiplier: 3,
           maxDelay: 200,
-        }
+        },
       );
 
       const delays: number[] = [];
@@ -197,7 +197,7 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       }
     });
 
-    test('verifies backoff with multiplier 1 (constant delay)', async () => {
+    test("verifies backoff with multiplier 1 (constant delay)", async () => {
       let attempts = 0;
       const attemptTimes: number[] = [];
 
@@ -206,15 +206,15 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           attemptTimes.push(Date.now());
           attempts++;
           if (attempts < 4) {
-            throw new Error('Retry me');
+            throw new Error("Retry me");
           }
-          return 'done';
+          return "done";
         },
         {
           maxRetries: 4,
           initialDelay: 100,
           backoffMultiplier: 1, // No exponential growth
-        }
+        },
       );
 
       const delays: number[] = [];
@@ -229,7 +229,7 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       }
     });
 
-    test('handles very aggressive backoff', async () => {
+    test("handles very aggressive backoff", async () => {
       let attempts = 0;
       const attemptTimes: number[] = [];
 
@@ -238,16 +238,16 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           attemptTimes.push(Date.now());
           attempts++;
           if (attempts < 4) {
-            throw new Error('Retry me');
+            throw new Error("Retry me");
           }
-          return 'done';
+          return "done";
         },
         {
           maxRetries: 4,
           initialDelay: 10,
           backoffMultiplier: 10,
           maxDelay: 500,
-        }
+        },
       );
 
       const delays: number[] = [];
@@ -267,66 +267,66 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
     });
   });
 
-  describe('Max Retry Limits', () => {
-    test('respects maxRetries of 0 (single attempt only)', async () => {
+  describe("Max Retry Limits", () => {
+    test("respects maxRetries of 0 (single attempt only)", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
-          throw new Error('Always fails');
+          throw new Error("Always fails");
         },
-        { maxRetries: 0 }
+        { maxRetries: 0 },
       );
 
       expect(result.success).toBe(false);
       expect(attempts).toBe(1);
     });
 
-    test('respects maxRetries of 1', async () => {
+    test("respects maxRetries of 1", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
-          throw new Error('Always fails');
+          throw new Error("Always fails");
         },
-        { maxRetries: 1, initialDelay: 10 }
+        { maxRetries: 1, initialDelay: 10 },
       );
 
       expect(result.success).toBe(false);
       expect(attempts).toBe(2); // Initial + 1 retry
     });
 
-    test('respects very high maxRetries', async () => {
+    test("respects very high maxRetries", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
           if (attempts < 50) {
-            throw new Error('Keep trying');
+            throw new Error("Keep trying");
           }
-          return 'finally!';
+          return "finally!";
         },
-        { maxRetries: 100, initialDelay: 1, maxDelay: 10 }
+        { maxRetries: 100, initialDelay: 1, maxDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('finally!');
+      expect(result.value).toBe("finally!");
       expect(attempts).toBe(50);
     });
 
-    test('exhausts all retries on persistent failure', async () => {
+    test("exhausts all retries on persistent failure", async () => {
       let attempts = 0;
       const maxRetries = 5;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
-          throw new Error('Persistent failure');
+          throw new Error("Persistent failure");
         },
-        { maxRetries, initialDelay: 10 }
+        { maxRetries, initialDelay: 10 },
       );
 
       expect(result.success).toBe(false);
@@ -334,7 +334,7 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       expect(result.attempts).toBe(maxRetries + 1);
     });
 
-    test('succeeds on exact last retry', async () => {
+    test("succeeds on exact last retry", async () => {
       let attempts = 0;
       const maxRetries = 3;
 
@@ -342,23 +342,23 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
         async () => {
           attempts++;
           if (attempts <= maxRetries) {
-            throw new Error('Not yet');
+            throw new Error("Not yet");
           }
-          return 'success on last attempt';
+          return "success on last attempt";
         },
-        { maxRetries, initialDelay: 10 }
+        { maxRetries, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('success on last attempt');
+      expect(result.value).toBe("success on last attempt");
       expect(attempts).toBe(maxRetries + 1);
     });
   });
 
-  describe('Error Recovery Patterns', () => {
-    test('recovers from transient network errors', async () => {
+  describe("Error Recovery Patterns", () => {
+    test("recovers from transient network errors", async () => {
       let attempts = 0;
-      const networkErrors = ['ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT'];
+      const networkErrors = ["ECONNREFUSED", "ECONNRESET", "ETIMEDOUT"];
 
       const result = await handler.withRetry(
         async () => {
@@ -369,76 +369,76 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
             throw error;
           }
           attempts++;
-          return 'network recovered';
+          return "network recovered";
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('network recovered');
+      expect(result.value).toBe("network recovered");
     });
 
-    test('recovers from temporary resource unavailability', async () => {
+    test("recovers from temporary resource unavailability", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
           if (attempts < 3) {
-            const error: any = new Error('EBUSY: resource busy or locked');
-            error.code = 'EBUSY';
+            const error: any = new Error("EBUSY: resource busy or locked");
+            error.code = "EBUSY";
             throw error;
           }
-          return 'resource now available';
+          return "resource now available";
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('resource now available');
+      expect(result.value).toBe("resource now available");
     });
 
-    test('does not recover from validation errors', async () => {
+    test("does not recover from validation errors", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
-          throw new Error('Invalid input: field required');
+          throw new Error("Invalid input: field required");
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(false);
       expect(attempts).toBe(1); // No retries on validation errors
     });
 
-    test('does not recover from not found errors', async () => {
+    test("does not recover from not found errors", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
-          const error: any = new Error('ENOENT: File not found');
-          error.code = 'ENOENT';
+          const error: any = new Error("ENOENT: File not found");
+          error.code = "ENOENT";
           throw error;
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(false);
       expect(attempts).toBe(1);
     });
 
-    test('does not recover from authentication errors', async () => {
+    test("does not recover from authentication errors", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
-          throw new Error('Unauthorized: Invalid credentials');
+          throw new Error("Unauthorized: Invalid credentials");
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(false);
@@ -446,36 +446,36 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
     });
   });
 
-  describe('Retry Result Metadata', () => {
-    test('returns correct attempt count on success', async () => {
+  describe("Retry Result Metadata", () => {
+    test("returns correct attempt count on success", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
           if (attempts < 3) {
-            throw new Error('Try again');
+            throw new Error("Try again");
           }
-          return 'success';
+          return "success";
         },
-        { maxRetries: 5, initialDelay: 10 }
+        { maxRetries: 5, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
       expect(result.attempts).toBe(3);
-      expect(result.value).toBe('success');
+      expect(result.value).toBe("success");
       expect(result.error).toBeUndefined();
     });
 
-    test('returns correct attempt count on failure', async () => {
+    test("returns correct attempt count on failure", async () => {
       let _attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           _attempts++;
-          throw new Error('Always fails');
+          throw new Error("Always fails");
         },
-        { maxRetries: 3, initialDelay: 10 }
+        { maxRetries: 3, initialDelay: 10 },
       );
 
       expect(result.success).toBe(false);
@@ -484,9 +484,9 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       expect(result.error).toBeDefined();
     });
 
-    test('preserves last error on failure', async () => {
+    test("preserves last error on failure", async () => {
       let attempts = 0;
-      const errors = ['Error 1', 'Error 2', 'Error 3', 'Final Error'];
+      const errors = ["Error 1", "Error 2", "Error 3", "Final Error"];
 
       const result = await handler.withRetry(
         async () => {
@@ -494,21 +494,21 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
           attempts++;
           throw new Error(error);
         },
-        { maxRetries: 3, initialDelay: 10 }
+        { maxRetries: 3, initialDelay: 10 },
       );
 
       expect(result.success).toBe(false);
-      expect(result.error?.message).toBe('Final Error');
+      expect(result.error?.message).toBe("Final Error");
     });
   });
 
-  describe('Edge Cases', () => {
-    test('handles function returning undefined', async () => {
+  describe("Edge Cases", () => {
+    test("handles function returning undefined", async () => {
       const result = await handler.withRetry(
         async () => {
           return undefined;
         },
-        { maxRetries: 2 }
+        { maxRetries: 2 },
       );
 
       expect(result.success).toBe(true);
@@ -516,12 +516,12 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       expect(result.attempts).toBe(1);
     });
 
-    test('handles function returning null', async () => {
+    test("handles function returning null", async () => {
       const result = await handler.withRetry(
         async () => {
           return null;
         },
-        { maxRetries: 2 }
+        { maxRetries: 2 },
       );
 
       expect(result.success).toBe(true);
@@ -529,10 +529,10 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       expect(result.attempts).toBe(1);
     });
 
-    test('handles function returning complex object', async () => {
+    test("handles function returning complex object", async () => {
       const complexResult = {
         data: [1, 2, 3],
-        nested: { key: 'value' },
+        nested: { key: "value" },
         timestamp: new Date(),
       };
 
@@ -542,43 +542,43 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       expect(result.value).toEqual(complexResult);
     });
 
-    test('handles non-Error thrown values', async () => {
+    test("handles non-Error thrown values", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
           if (attempts < 2) {
-            throw 'string error'; // Non-Error throw
+            throw "string error"; // Non-Error throw
           }
-          return 'recovered';
+          return "recovered";
         },
-        { maxRetries: 3, initialDelay: 10 }
+        { maxRetries: 3, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('recovered');
+      expect(result.value).toBe("recovered");
     });
 
-    test('handles async errors thrown by Promise.reject', async () => {
+    test("handles async errors thrown by Promise.reject", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
           if (attempts < 2) {
-            return Promise.reject(new Error('Rejected promise'));
+            return Promise.reject(new Error("Rejected promise"));
           }
-          return 'recovered';
+          return "recovered";
         },
-        { maxRetries: 3, initialDelay: 10 }
+        { maxRetries: 3, initialDelay: 10 },
       );
 
       expect(result.success).toBe(true);
-      expect(result.value).toBe('recovered');
+      expect(result.value).toBe("recovered");
     });
 
-    test('handles zero initial delay', async () => {
+    test("handles zero initial delay", async () => {
       let attempts = 0;
       const startTime = Date.now();
 
@@ -586,11 +586,11 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
         async () => {
           attempts++;
           if (attempts < 3) {
-            throw new Error('Retry');
+            throw new Error("Retry");
           }
-          return 'done';
+          return "done";
         },
-        { maxRetries: 3, initialDelay: 0 }
+        { maxRetries: 3, initialDelay: 0 },
       );
 
       const elapsed = Date.now() - startTime;
@@ -599,18 +599,18 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       expect(attempts).toBe(3);
     });
 
-    test('handles very small initial delay', async () => {
+    test("handles very small initial delay", async () => {
       let attempts = 0;
 
       const result = await handler.withRetry(
         async () => {
           attempts++;
           if (attempts < 5) {
-            throw new Error('Retry');
+            throw new Error("Retry");
           }
-          return 'done';
+          return "done";
         },
-        { maxRetries: 5, initialDelay: 1 }
+        { maxRetries: 5, initialDelay: 1 },
       );
 
       expect(result.success).toBe(true);
@@ -618,8 +618,8 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
     });
   });
 
-  describe('Stress Testing', () => {
-    test('handles high retry counts efficiently', async () => {
+  describe("Stress Testing", () => {
+    test("handles high retry counts efficiently", async () => {
       let attempts = 0;
       const startTime = Date.now();
 
@@ -627,11 +627,11 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
         async () => {
           attempts++;
           if (attempts < 100) {
-            throw new Error('Keep going');
+            throw new Error("Keep going");
           }
-          return 'done';
+          return "done";
         },
-        { maxRetries: 150, initialDelay: 1, maxDelay: 5 }
+        { maxRetries: 150, initialDelay: 1, maxDelay: 5 },
       );
 
       const elapsed = Date.now() - startTime;
@@ -642,16 +642,16 @@ describe('ErrorHandler - Retry Logic & Recovery', () => {
       expect(elapsed).toBeLessThan(2000);
     });
 
-    test('handles rapid failures with minimal delay', async () => {
+    test("handles rapid failures with minimal delay", async () => {
       let attempts = 0;
       const startTime = Date.now();
 
       await handler.withRetry(
         async () => {
           attempts++;
-          throw new Error('Fast failure');
+          throw new Error("Fast failure");
         },
-        { maxRetries: 50, initialDelay: 0 }
+        { maxRetries: 50, initialDelay: 0 },
       );
 
       const elapsed = Date.now() - startTime;

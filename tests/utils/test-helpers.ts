@@ -1,6 +1,6 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { nanoid } from 'nanoid';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { nanoid } from "nanoid";
 
 /**
  * Test helper utilities for despec test suite
@@ -10,7 +10,7 @@ import { nanoid } from 'nanoid';
  * Environment variable for stress testing
  * When STRESS_TEST=true, tests run with higher iteration counts
  */
-export const STRESS_TEST = process.env.STRESS_TEST === 'true';
+export const STRESS_TEST = process.env.STRESS_TEST === "true";
 
 /**
  * Get appropriate iteration count based on test mode
@@ -28,7 +28,7 @@ export class TempDirectory {
   private created: Set<string> = new Set();
 
   constructor(baseName: string) {
-    this.baseDir = path.join('/tmp', `despec-test-${baseName}-${nanoid(8)}`);
+    this.baseDir = path.join("/tmp", `despec-test-${baseName}-${nanoid(8)}`);
   }
 
   /**
@@ -68,7 +68,7 @@ export class TempDirectory {
       this.created.add(dir);
     }
 
-    await fs.writeFile(filePath, content, 'utf8');
+    await fs.writeFile(filePath, content, "utf8");
     return filePath;
   }
 
@@ -138,9 +138,9 @@ export async function waitFor(
     timeout?: number;
     interval?: number;
     message?: string;
-  } = {}
+  } = {},
 ): Promise<void> {
-  const { timeout: timeoutMs = 5000, interval = 100, message = 'Condition not met' } = options;
+  const { timeout: timeoutMs = 5000, interval = 100, message = "Condition not met" } = options;
 
   const startTime = Date.now();
 
@@ -185,42 +185,42 @@ export async function spawnProcess(
     env?: Record<string, string>;
     cwd?: string;
     timeout?: number;
-  } = {}
+  } = {},
 ): Promise<ProcessResult> {
-  const { spawn } = await import('node:child_process');
+  const { spawn } = await import("node:child_process");
   const startTime = Date.now();
 
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       env: { ...process.env, ...options.env },
       cwd: options.cwd,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ["ignore", "pipe", "pipe"],
     });
 
-    let stdout = '';
-    let stderr = '';
+    let stdout = "";
+    let stderr = "";
 
-    child.stdout?.on('data', (data) => {
+    child.stdout?.on("data", (data) => {
       stdout += data.toString();
     });
 
-    child.stderr?.on('data', (data) => {
+    child.stderr?.on("data", (data) => {
       stderr += data.toString();
     });
 
     const timeoutHandle = options.timeout
       ? setTimeout(() => {
-          child.kill('SIGTERM');
+          child.kill("SIGTERM");
           reject(new Error(`Process timeout after ${options.timeout}ms`));
         }, options.timeout)
       : null;
 
-    child.on('error', (error) => {
+    child.on("error", (error) => {
       if (timeoutHandle) clearTimeout(timeoutHandle);
       reject(error);
     });
 
-    child.on('close', (exitCode) => {
+    child.on("close", (exitCode) => {
       if (timeoutHandle) clearTimeout(timeoutHandle);
       resolve({
         exitCode: exitCode ?? -1,
@@ -240,7 +240,7 @@ export async function spawnProcess(
  * Measures execution time of a function
  */
 export async function measureTime<T>(
-  fn: () => Promise<T>
+  fn: () => Promise<T>,
 ): Promise<{ result: T; duration: number }> {
   const startTime = Date.now();
   const result = await fn();
@@ -291,12 +291,12 @@ export async function eventuallyResolves<T>(
     timeout?: number;
     interval?: number;
     message?: string;
-  } = {}
+  } = {},
 ): Promise<T> {
   const {
     timeout: timeoutMs = 5000,
     interval = 100,
-    message = 'Promise did not resolve',
+    message = "Promise did not resolve",
   } = options;
 
   const startTime = Date.now();
@@ -311,5 +311,5 @@ export async function eventuallyResolves<T>(
     }
   }
 
-  throw new Error(`${message}: ${lastError?.message || 'Unknown error'}`);
+  throw new Error(`${message}: ${lastError?.message || "Unknown error"}`);
 }

@@ -39,5 +39,5 @@ coverage/
 *.lcov
 .vitest/
 
-# Git hooks
-.lefthook/
+# We use bun.lock instead of package-lock.json
+package-lock.json

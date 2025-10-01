@@ -1,4 +1,4 @@
-import { Worker } from 'node:worker_threads';
+import { Worker } from "node:worker_threads";
 
 /**
  * Helper to create a worker that runs TypeScript code
@@ -10,17 +10,17 @@ export function createWorker(code: string, workerData: any): Promise<any> {
       workerData,
     });
 
-    worker.on('message', (message) => {
+    worker.on("message", (message) => {
       worker.terminate();
       resolve(message);
     });
 
-    worker.on('error', (error) => {
+    worker.on("error", (error) => {
       worker.terminate();
       reject(error);
     });
 
-    worker.on('exit', (code) => {
+    worker.on("exit", (code) => {
       if (code !== 0) {
         reject(new Error(`Worker stopped with exit code ${code}`));
       }
@@ -112,7 +112,7 @@ export class PerformanceMetrics {
 export interface StressTestConfig {
   numWorkers: number;
   operationsPerWorker: number;
-  concurrencyLevel: 'low' | 'medium' | 'high';
+  concurrencyLevel: "low" | "medium" | "high";
   resourcePath: string;
 }
 
@@ -129,8 +129,8 @@ export function generateStressScenarios(baseConfig: Partial<StressTestConfig>): 
       scenarios.push({
         numWorkers: workers,
         operationsPerWorker: operations,
-        concurrencyLevel: workers <= 5 ? 'low' : workers <= 20 ? 'medium' : 'high',
-        resourcePath: baseConfig.resourcePath || '/tmp/stress-test',
+        concurrencyLevel: workers <= 5 ? "low" : workers <= 20 ? "medium" : "high",
+        resourcePath: baseConfig.resourcePath || "/tmp/stress-test",
         ...baseConfig,
       });
     }

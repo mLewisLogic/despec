@@ -4,8 +4,8 @@
  * Used for multi-process lock contention testing.
  */
 
-import fs from 'node:fs/promises';
-import { FileLock } from '../../../src/shared/file-lock';
+import fs from "node:fs/promises";
+import { FileLock } from "../../../src/shared/file-lock";
 
 interface WorkerConfig {
   resourcePath: string;
@@ -29,7 +29,7 @@ interface OperationResult {
 async function main() {
   const configJson = process.env.WORKER_CONFIG;
   if (!configJson) {
-    console.error('WORKER_CONFIG environment variable not set');
+    console.error("WORKER_CONFIG environment variable not set");
     process.exit(1);
   }
 
@@ -59,7 +59,7 @@ async function main() {
       // Read current value
       let currentValue = 0;
       try {
-        const content = await fs.readFile(config.counterPath, 'utf8');
+        const content = await fs.readFile(config.counterPath, "utf8");
         currentValue = parseInt(content, 10) || 0;
       } catch (_error) {
         // File doesn't exist yet

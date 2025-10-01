@@ -15,7 +15,6 @@
         "@types/bun": "latest",
         "@vitest/coverage-v8": "latest",
         "lefthook": "latest",
-        "tsx": "latest",
         "typescript": "latest",
         "vitest": "latest",
       },

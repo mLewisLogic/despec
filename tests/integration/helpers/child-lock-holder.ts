@@ -4,7 +4,7 @@
  * Used for process kill testing.
  */
 
-import { FileLock } from '../../../src/shared/file-lock';
+import { FileLock } from "../../../src/shared/file-lock";
 
 interface HolderConfig {
   resourcePath: string;
@@ -15,7 +15,7 @@ interface HolderConfig {
 async function main() {
   const configJson = process.env.HOLDER_CONFIG;
   if (!configJson) {
-    console.error('HOLDER_CONFIG environment variable not set');
+    console.error("HOLDER_CONFIG environment variable not set");
     process.exit(1);
   }
 
@@ -42,7 +42,7 @@ async function main() {
     }
   } catch (error) {
     console.error(
-      JSON.stringify({ error: error instanceof Error ? error.message : String(error) })
+      JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
     );
     process.exit(1);
   }

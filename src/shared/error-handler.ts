@@ -3,13 +3,13 @@
  */
 export enum ErrorSeverity {
   /** Critical error that prevents system operation */
-  CRITICAL = 'critical',
+  CRITICAL = "critical",
   /** High severity error that affects major functionality */
-  HIGH = 'high',
+  HIGH = "high",
   /** Medium severity error that affects some functionality */
-  MEDIUM = 'medium',
+  MEDIUM = "medium",
   /** Low severity error or warning */
-  LOW = 'low',
+  LOW = "low",
 }
 
 /**
@@ -17,17 +17,17 @@ export enum ErrorSeverity {
  */
 export enum ErrorCategory {
   /** File system related errors */
-  FILE_SYSTEM = 'file_system',
+  FILE_SYSTEM = "file_system",
   /** Validation errors */
-  VALIDATION = 'validation',
+  VALIDATION = "validation",
   /** Lock acquisition/concurrency errors */
-  CONCURRENCY = 'concurrency',
+  CONCURRENCY = "concurrency",
   /** Network/API errors */
-  NETWORK = 'network',
+  NETWORK = "network",
   /** Data parsing errors */
-  PARSING = 'parsing',
+  PARSING = "parsing",
   /** General operational errors */
-  OPERATIONAL = 'operational',
+  OPERATIONAL = "operational",
 }
 
 /**
@@ -35,17 +35,17 @@ export enum ErrorCategory {
  */
 export enum ErrorCode {
   // Retryable errors
-  TIMEOUT = 'ERR_TIMEOUT',
-  BUSY = 'ERR_BUSY',
-  UNAVAILABLE = 'ERR_UNAVAILABLE',
-  NETWORK = 'ERR_NETWORK',
+  TIMEOUT = "ERR_TIMEOUT",
+  BUSY = "ERR_BUSY",
+  UNAVAILABLE = "ERR_UNAVAILABLE",
+  NETWORK = "ERR_NETWORK",
 
   // Non-retryable errors
-  INVALID_INPUT = 'ERR_INVALID_INPUT',
-  NOT_FOUND = 'ERR_NOT_FOUND',
-  FORBIDDEN = 'ERR_FORBIDDEN',
-  UNAUTHORIZED = 'ERR_UNAUTHORIZED',
-  CONFLICT = 'ERR_CONFLICT',
+  INVALID_INPUT = "ERR_INVALID_INPUT",
+  NOT_FOUND = "ERR_NOT_FOUND",
+  FORBIDDEN = "ERR_FORBIDDEN",
+  UNAUTHORIZED = "ERR_UNAUTHORIZED",
+  CONFLICT = "ERR_CONFLICT",
 }
 
 /**
@@ -254,7 +254,7 @@ export class ErrorHandler {
       parts.push(`Context: ${JSON.stringify(error.context)}`);
     }
 
-    return parts.join(' | ');
+    return parts.join(" | ");
   }
 
   /**
@@ -282,7 +282,7 @@ export class ErrorHandler {
 
     // Log stack trace for critical errors
     if (error.severity === ErrorSeverity.CRITICAL && error.cause) {
-      console.error('Stack trace:', error.cause.stack);
+      console.error("Stack trace:", error.cause.stack);
     }
   }
 
@@ -299,7 +299,7 @@ export class ErrorHandler {
     error: unknown,
     message: string,
     category: ErrorCategory = ErrorCategory.OPERATIONAL,
-    severity: ErrorSeverity = ErrorSeverity.MEDIUM
+    severity: ErrorSeverity = ErrorSeverity.MEDIUM,
   ): ErrorInfo {
     const cause = error instanceof Error ? error : undefined;
     const errorMessage = cause ? cause.message : String(error);
@@ -382,8 +382,8 @@ export class ErrorHandler {
       category: ErrorCategory.FILE_SYSTEM,
       ...(cause && { cause }),
       context: { operation, filePath },
-      fix: 'Check file permissions and path',
-      next: 'Verify the file exists and is accessible',
+      fix: "Check file permissions and path",
+      next: "Verify the file exists and is accessible",
     });
   }
 
@@ -402,8 +402,8 @@ export class ErrorHandler {
       category: ErrorCategory.CONCURRENCY,
       ...(cause && { cause }),
       context: { resourcePath, timeout },
-      fix: 'Check for stale locks',
-      next: 'rm .despec/.locks/*',
+      fix: "Check for stale locks",
+      next: "rm .despec/.locks/*",
     });
   }
 
@@ -420,8 +420,8 @@ export class ErrorHandler {
       severity: ErrorSeverity.MEDIUM,
       category: ErrorCategory.VALIDATION,
       context: { field, reason },
-      fix: 'Correct the input and try again',
-      next: 'despec validate',
+      fix: "Correct the input and try again",
+      next: "despec validate",
     });
   }
 }

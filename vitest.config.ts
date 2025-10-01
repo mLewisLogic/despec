@@ -1,16 +1,16 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     // Enable parallel execution for better performance
-    pool: 'threads',
+    pool: "threads",
     poolOptions: {
       threads: {},
     },
 
     // Test file patterns
-    include: ['tests/**/*.test.ts'],
-    exclude: ['node_modules', 'dist', 'coverage'],
+    include: ["tests/**/*.test.ts"],
+    exclude: ["node_modules", "dist", "coverage"],
 
     // Timeout configuration
     testTimeout: 30000, // 30 seconds for normal tests
@@ -18,9 +18,9 @@ export default defineConfig({
 
     // Coverage configuration
     coverage: {
-      reporter: ['text', 'json', 'html', 'lcov'],
-      include: ['src/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'src/types/**', 'dist/**', 'coverage/**'],
+      reporter: ["text", "json", "html", "lcov"],
+      include: ["src/**/*.ts"],
+      exclude: ["src/**/*.test.ts", "src/**/*.spec.ts", "src/types/**", "dist/**", "coverage/**"],
       thresholds: {
         lines: 80,
         functions: 80,
@@ -30,10 +30,10 @@ export default defineConfig({
     },
 
     // Environment
-    environment: 'node',
+    environment: "node",
 
     // Reporters
-    reporters: process.env.CI ? ['verbose', 'json'] : ['default'],
+    reporters: process.env.CI ? ["verbose", "json"] : ["default"],
 
     // Globals
     globals: false,

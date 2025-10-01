@@ -1,7 +1,7 @@
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-import { nanoid } from 'nanoid';
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { nanoid } from "nanoid";
 
 /**
  * Options for lock acquisition
@@ -115,9 +115,9 @@ export class FileLock {
 
         try {
           // Write metadata file inside our lock directory
-          const metadataPath = path.join(lockPath, 'metadata.json');
+          const metadataPath = path.join(lockPath, "metadata.json");
           await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), {
-            encoding: 'utf8',
+            encoding: "utf8",
             mode: 0o600,
           });
 
@@ -144,7 +144,7 @@ export class FileLock {
           // If we failed to write metadata because the directory was cleaned up
           // by another process (ENOENT, EINVAL), just retry - this is normal
           // concurrent behavior when multiple processes are trying to acquire
-          if (writeError.code === 'ENOENT' || writeError.code === 'EINVAL') {
+          if (writeError.code === "ENOENT" || writeError.code === "EINVAL") {
             await this.cleanupLockDirectory(lockPath).catch(() => {});
             continue;
           }
@@ -157,9 +157,9 @@ export class FileLock {
         // biome-ignore lint/suspicious/noExplicitAny: Node.js error codes are not typed
         const nodeError = error as any;
 
-        if (nodeError.code !== 'EEXIST') {
+        if (nodeError.code !== "EEXIST") {
           throw new Error(
-            `Failed to acquire lock for ${resourcePath}: ${error instanceof Error ? error.message : String(error)}`
+            `Failed to acquire lock for ${resourcePath}: ${error instanceof Error ? error.message : String(error)}`,
           );
         }
 
@@ -264,7 +264,7 @@ export class FileLock {
   async withLock<T>(
     resourcePath: string,
     fn: () => Promise<T>,
-    options: LockOptions = {}
+    options: LockOptions = {},
   ): Promise<T> {
     await this.acquire(resourcePath, options);
     try {
@@ -302,8 +302,8 @@ export class FileLock {
   private async isLockStale(lockPath: string, staleTimeout: number): Promise<boolean> {
     try {
       // Try to read lock metadata from directory
-      const metadataPath = path.join(lockPath, 'metadata.json');
-      const metadataContent = await fs.readFile(metadataPath, 'utf8');
+      const metadataPath = path.join(lockPath, "metadata.json");
+      const metadataContent = await fs.readFile(metadataPath, "utf8");
       const metadata: LockMetadata = JSON.parse(metadataContent);
 
       // Check if the process is still running
@@ -346,7 +346,7 @@ export class FileLock {
       const nodeError = error as any;
       // EPERM means process exists but we don't have permission to signal it
       // ESRCH means process doesn't exist
-      return nodeError.code === 'EPERM';
+      return nodeError.code === "EPERM";
     }
   }
 
@@ -359,8 +359,8 @@ export class FileLock {
    */
   private async verifyLockOwnership(lockPath: string, expectedLockId: string): Promise<boolean> {
     try {
-      const metadataPath = path.join(lockPath, 'metadata.json');
-      const metadataContent = await fs.readFile(metadataPath, 'utf8');
+      const metadataPath = path.join(lockPath, "metadata.json");
+      const metadataContent = await fs.readFile(metadataPath, "utf8");
       const metadata: LockMetadata = JSON.parse(metadataContent);
       return metadata.lockId === expectedLockId && metadata.pid === process.pid;
     } catch {

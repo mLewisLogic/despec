@@ -4,8 +4,8 @@
  * Used for concurrent lock creation testing.
  */
 
-import fs from 'node:fs/promises';
-import { FileLock } from '../../../src/shared/file-lock';
+import fs from "node:fs/promises";
+import { FileLock } from "../../../src/shared/file-lock";
 
 interface RacerConfig {
   resourcePath: string;
@@ -17,7 +17,7 @@ interface RacerConfig {
 async function main() {
   const configJson = process.env.RACER_CONFIG;
   if (!configJson) {
-    console.error('RACER_CONFIG environment variable not set');
+    console.error("RACER_CONFIG environment variable not set");
     process.exit(1);
   }
 
@@ -27,7 +27,7 @@ async function main() {
   try {
     // Wait for coordination signal (all processes ready)
     const readyPath = `${config.coordinationPath}.${config.workerId}.ready`;
-    await fs.writeFile(readyPath, 'ready');
+    await fs.writeFile(readyPath, "ready");
 
     // Poll for start signal
     const startSignalPath = `${config.coordinationPath}.start`;
@@ -50,7 +50,7 @@ async function main() {
     // Record acquisition order
     let order = 0;
     try {
-      const orderContent = await fs.readFile(`${config.coordinationPath}.order`, 'utf8');
+      const orderContent = await fs.readFile(`${config.coordinationPath}.order`, "utf8");
       order = parseInt(orderContent, 10) || 0;
     } catch {
       // File doesn't exist yet
@@ -71,7 +71,7 @@ async function main() {
         workerId: config.workerId,
         acquireDuration,
         order,
-      })
+      }),
     );
     process.exit(0);
   } catch (error) {
@@ -80,7 +80,7 @@ async function main() {
         success: false,
         workerId: config.workerId,
         error: error instanceof Error ? error.message : String(error),
-      })
+      }),
     );
     process.exit(1);
   }

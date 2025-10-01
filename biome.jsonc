@@ -9,10 +9,10 @@
     "ignoreUnknown": false,
     "includes": [
       "**",
-      "!**/node_modules",
-      "!**/dist",
-      "!**/coverage",
       "!**/.despec",
+      "!**/coverage",
+      "!**/dist",
+      "!**/node_modules",
       "!**/bun.lockb"
     ]
   },
@@ -59,20 +59,13 @@
       }
     }
   ],
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "trailingCommas": "es5",
-      "semicolons": "always"
-    }
-  },
   "json": {
     "formatter": {
       "enabled": true
     },
     "parser": {
       "allowComments": true,
-      "allowTrailingCommas": false
+      "allowTrailingCommas": true
     }
   }
 }

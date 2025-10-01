@@ -1,11 +1,11 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { FileLock } from '../../src/shared/file-lock.js';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { FileLock } from "../../src/shared/file-lock.js";
 
-const TEST_DIR = '/tmp/despec-file-lock-failure-tests';
+const TEST_DIR = "/tmp/despec-file-lock-failure-tests";
 
-describe('FileLock - Failure Conditions', () => {
+describe("FileLock - Failure Conditions", () => {
   beforeEach(async () => {
     await fs.mkdir(TEST_DIR, { recursive: true });
   });
@@ -14,11 +14,11 @@ describe('FileLock - Failure Conditions', () => {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
   });
 
-  describe('Lock Acquisition Timeouts', () => {
-    test('times out when lock is held by another process', async () => {
+  describe("Lock Acquisition Timeouts", () => {
+    test("times out when lock is held by another process", async () => {
       const lock1 = new FileLock();
       const lock2 = new FileLock();
-      const resourcePath = path.join(TEST_DIR, 'resource.txt');
+      const resourcePath = path.join(TEST_DIR, "resource.txt");
 
       await lock1.acquire(resourcePath);
 
@@ -34,31 +34,31 @@ describe('FileLock - Failure Conditions', () => {
       const elapsed = Date.now() - startTime;
 
       expect(timeoutError).toBeDefined();
-      expect(timeoutError?.message).toContain('Lock acquisition timeout');
+      expect(timeoutError?.message).toContain("Lock acquisition timeout");
       expect(elapsed).toBeGreaterThanOrEqual(100);
       expect(elapsed).toBeLessThan(300);
 
       await lock1.release(resourcePath);
     });
 
-    test('multiple locks timing out on same resource', async () => {
+    test("multiple locks timing out on same resource", async () => {
       const firstLock = new FileLock();
       const competingLocks = Array.from({ length: 3 }, () => new FileLock());
-      const resourcePath = path.join(TEST_DIR, 'contested.txt');
+      const resourcePath = path.join(TEST_DIR, "contested.txt");
 
       await firstLock.acquire(resourcePath);
 
       const results = await Promise.allSettled(
         competingLocks.map((lock) =>
-          lock.acquire(resourcePath, { timeout: 100, retryInterval: 10 })
-        )
+          lock.acquire(resourcePath, { timeout: 100, retryInterval: 10 }),
+        ),
       );
 
       // All should have failed
       results.forEach((result) => {
-        expect(result.status).toBe('rejected');
-        if (result.status === 'rejected') {
-          expect(result.reason.message).toContain('Lock acquisition timeout');
+        expect(result.status).toBe("rejected");
+        if (result.status === "rejected") {
+          expect(result.reason.message).toContain("Lock acquisition timeout");
         }
       });
 
@@ -66,22 +66,22 @@ describe('FileLock - Failure Conditions', () => {
     });
   });
 
-  describe('Stale Lock Handling', () => {
-    test('detects and removes stale lock', async () => {
+  describe("Stale Lock Handling", () => {
+    test("detects and removes stale lock", async () => {
       const lock = new FileLock();
-      const resourcePath = path.join(TEST_DIR, 'stale-resource.txt');
+      const resourcePath = path.join(TEST_DIR, "stale-resource.txt");
       const lockPath = `${resourcePath}.lock`;
 
       // Create a stale lock directory with metadata
       await fs.mkdir(lockPath);
       await fs.writeFile(
-        path.join(lockPath, 'metadata.json'),
+        path.join(lockPath, "metadata.json"),
         JSON.stringify({
           pid: 99999, // Non-existent PID
-          hostname: 'stale-host',
-          lockId: 'stale-lock-id',
+          hostname: "stale-host",
+          lockId: "stale-lock-id",
           timestamp: Date.now() - 2000, // 2 seconds ago
-        })
+        }),
       );
 
       const oldTime = new Date(Date.now() - 2000);
@@ -95,16 +95,16 @@ describe('FileLock - Failure Conditions', () => {
       await lock.release(resourcePath);
     });
 
-    test('handles corrupted lock file content', async () => {
+    test("handles corrupted lock file content", async () => {
       const lock = new FileLock();
-      const resourcePath = path.join(TEST_DIR, 'corrupted-lock.txt');
+      const resourcePath = path.join(TEST_DIR, "corrupted-lock.txt");
       const lockPath = `${resourcePath}.lock`;
 
       // Create lock directory with corrupted metadata
       await fs.mkdir(lockPath);
       await fs.writeFile(
-        path.join(lockPath, 'metadata.json'),
-        Buffer.from([0x00, 0xff, 0xfe, 0x01])
+        path.join(lockPath, "metadata.json"),
+        Buffer.from([0x00, 0xff, 0xfe, 0x01]),
       );
 
       // Make it stale
@@ -120,10 +120,10 @@ describe('FileLock - Failure Conditions', () => {
     });
   });
 
-  describe('Lock Release Failures', () => {
-    test('handles release when lock directory already deleted', async () => {
+  describe("Lock Release Failures", () => {
+    test("handles release when lock directory already deleted", async () => {
       const lock = new FileLock();
-      const resourcePath = path.join(TEST_DIR, 'deleted-lock.txt');
+      const resourcePath = path.join(TEST_DIR, "deleted-lock.txt");
       const lockPath = `${resourcePath}.lock`;
 
       await lock.acquire(resourcePath);
@@ -137,9 +137,9 @@ describe('FileLock - Failure Conditions', () => {
       expect(lock.isHeld(resourcePath)).toBe(false);
     });
 
-    test('handles releaseAll with some failed releases', async () => {
+    test("handles releaseAll with some failed releases", async () => {
       const lock = new FileLock();
-      const resources = [path.join(TEST_DIR, 'res1.txt'), path.join(TEST_DIR, 'res2.txt')];
+      const resources = [path.join(TEST_DIR, "res1.txt"), path.join(TEST_DIR, "res2.txt")];
 
       // Acquire all locks
       for (const resource of resources) {
@@ -157,10 +157,10 @@ describe('FileLock - Failure Conditions', () => {
     });
   });
 
-  describe('Concurrency Edge Cases', () => {
-    test('handles rapid acquire-release cycles', async () => {
+  describe("Concurrency Edge Cases", () => {
+    test("handles rapid acquire-release cycles", async () => {
       const lock = new FileLock();
-      const resourcePath = path.join(TEST_DIR, 'rapid-cycle.txt');
+      const resourcePath = path.join(TEST_DIR, "rapid-cycle.txt");
 
       // Perform rapid acquire-release cycles
       for (let i = 0; i < 5; i++) {

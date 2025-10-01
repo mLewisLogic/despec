@@ -10,14 +10,14 @@
  * 3. Performance benchmarks for lock acquisition and write throughput
  */
 
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Worker } from 'node:worker_threads';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Worker } from "node:worker_threads";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join('/tmp', 'despec-worker-validation');
+const TEST_DIR = path.join("/tmp", "despec-worker-validation");
 
 interface WorkerResult {
   success: boolean;
@@ -57,7 +57,7 @@ interface AtomicWriterTestResult {
   success: boolean;
 }
 
-describe('FileLock Worker Thread Validation', () => {
+describe("FileLock Worker Thread Validation", () => {
   beforeAll(async () => {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(TEST_DIR, { recursive: true });
@@ -72,15 +72,15 @@ describe('FileLock Worker Thread Validation', () => {
    * Requirement: 100% success rate across all runs
    * NOTE: Using 5 workers × 20 operations for fast testing while maintaining coverage
    */
-  it('FileLock: 5 runs with 100% success rate (5 workers × 20 operations)', async () => {
+  it("FileLock: 5 runs with 100% success rate (5 workers × 20 operations)", async () => {
     const NUM_RUNS = 5;
     const NUM_WORKERS = 5;
     const OPERATIONS_PER_WORKER = 20;
     const EXPECTED_FINAL_COUNT = NUM_WORKERS * OPERATIONS_PER_WORKER;
 
-    console.log('\n=== FileLock Validation: 5 Runs ===');
+    console.log("\n=== FileLock Validation: 5 Runs ===");
     console.log(
-      `Configuration: ${NUM_RUNS} runs × ${NUM_WORKERS} workers × ${OPERATIONS_PER_WORKER} operations`
+      `Configuration: ${NUM_RUNS} runs × ${NUM_WORKERS} workers × ${OPERATIONS_PER_WORKER} operations`,
     );
     console.log(`Expected final count per run: ${EXPECTED_FINAL_COUNT}\n`);
 
@@ -92,12 +92,12 @@ describe('FileLock Worker Thread Validation', () => {
       const runDir = path.join(TEST_DIR, `filelock-run-${runNumber}`);
       await fs.mkdir(runDir, { recursive: true });
 
-      const resourcePath = path.join(runDir, 'counter.txt');
+      const resourcePath = path.join(runDir, "counter.txt");
       const result = await runFileLockTest(
         runNumber,
         resourcePath,
         NUM_WORKERS,
-        OPERATIONS_PER_WORKER
+        OPERATIONS_PER_WORKER,
       );
 
       results.push(result);
@@ -106,13 +106,13 @@ describe('FileLock Worker Thread Validation', () => {
         successfulRuns++;
         if (runNumber % 10 === 0) {
           console.log(
-            `Run ${runNumber}: ✓ SUCCESS (count: ${result.actualCount}/${result.expectedCount}, time: ${result.totalDuration.toFixed(0)}ms)`
+            `Run ${runNumber}: ✓ SUCCESS (count: ${result.actualCount}/${result.expectedCount}, time: ${result.totalDuration.toFixed(0)}ms)`,
           );
         }
       } else {
         failedRuns++;
         console.log(
-          `Run ${runNumber}: ✗ FAILURE (count: ${result.actualCount}/${result.expectedCount}, lost: ${result.lostIncrements})`
+          `Run ${runNumber}: ✗ FAILURE (count: ${result.actualCount}/${result.expectedCount}, lost: ${result.lostIncrements})`,
         );
       }
 
@@ -127,7 +127,7 @@ describe('FileLock Worker Thread Validation', () => {
     const maxWaitTime = Math.max(...results.map((r) => r.maxWaitTime));
     const avgDuration = results.reduce((sum, r) => sum + r.totalDuration, 0) / results.length;
 
-    console.log('\n=== FileLock Validation Results ===');
+    console.log("\n=== FileLock Validation Results ===");
     console.log(`Total runs: ${NUM_RUNS}`);
     console.log(`Successful runs: ${successfulRuns}`);
     console.log(`Failed runs: ${failedRuns}`);
@@ -148,21 +148,21 @@ describe('FileLock Worker Thread Validation', () => {
    * Requirement: 0% corruption rate
    * NOTE: Using 5 workers × 50 files for fast testing while maintaining coverage
    */
-  it('AtomicWriter: 0% corruption rate (5 workers × 50 files)', async () => {
+  it("AtomicWriter: 0% corruption rate (5 workers × 50 files)", async () => {
     const NUM_WORKERS = 5;
     const FILES_PER_WORKER = 50;
     const EXPECTED_TOTAL_FILES = NUM_WORKERS * FILES_PER_WORKER;
 
-    console.log('\n=== AtomicWriter Stress Test ===');
+    console.log("\n=== AtomicWriter Stress Test ===");
     console.log(`Configuration: ${NUM_WORKERS} workers × ${FILES_PER_WORKER} files`);
     console.log(`Expected total files: ${EXPECTED_TOTAL_FILES}\n`);
 
-    const testDir = path.join(TEST_DIR, 'atomic-writer-stress');
+    const testDir = path.join(TEST_DIR, "atomic-writer-stress");
     await fs.mkdir(testDir, { recursive: true });
 
     const result = await runAtomicWriterTest(testDir, NUM_WORKERS, FILES_PER_WORKER);
 
-    console.log('\n=== AtomicWriter Stress Test Results ===');
+    console.log("\n=== AtomicWriter Stress Test Results ===");
     console.log(`Total files written: ${result.totalFiles}`);
     console.log(`Expected files: ${EXPECTED_TOTAL_FILES}`);
     console.log(`Total corruptions: ${result.totalCorruptions}`);
@@ -171,10 +171,10 @@ describe('FileLock Worker Thread Validation', () => {
     console.log(`Throughput: ${result.throughput.toFixed(2)} writes/second`);
     console.log(`Total duration: ${result.totalDuration.toFixed(2)}ms`);
 
-    console.log('\nPer-worker statistics:');
+    console.log("\nPer-worker statistics:");
     for (const wr of result.workerResults) {
       console.log(
-        `  Worker ${wr.workerId}: Written=${wr.filesWritten}, Failed=${wr.filesFailed}, Corrupted=${wr.corruptedFiles}, AvgTime=${wr.avgWriteTime.toFixed(2)}ms`
+        `  Worker ${wr.workerId}: Written=${wr.filesWritten}, Failed=${wr.filesFailed}, Corrupted=${wr.corruptedFiles}, AvgTime=${wr.avgWriteTime.toFixed(2)}ms`,
       );
     }
 
@@ -191,28 +191,28 @@ describe('FileLock Worker Thread Validation', () => {
   /**
    * Test 3: Performance Benchmarks
    */
-  it('Performance Benchmarks: Lock acquisition and write throughput', async () => {
-    console.log('\n=== Performance Benchmarks ===');
+  it("Performance Benchmarks: Lock acquisition and write throughput", async () => {
+    console.log("\n=== Performance Benchmarks ===");
 
     // FileLock: Average acquisition time under contention
-    const lockBenchDir = path.join(TEST_DIR, 'lock-bench');
+    const lockBenchDir = path.join(TEST_DIR, "lock-bench");
     await fs.mkdir(lockBenchDir, { recursive: true });
 
-    const lockResourcePath = path.join(lockBenchDir, 'bench-resource.txt');
+    const lockResourcePath = path.join(lockBenchDir, "bench-resource.txt");
 
-    console.log('\nBenchmark 1: FileLock acquisition under contention (5 workers × 20 operations)');
+    console.log("\nBenchmark 1: FileLock acquisition under contention (5 workers × 20 operations)");
     const lockBenchResult = await runFileLockTest(0, lockResourcePath, 5, 20);
     console.log(`  Average lock acquisition time: ${lockBenchResult.avgWaitTime.toFixed(2)}ms`);
     console.log(`  Max lock acquisition time: ${lockBenchResult.maxWaitTime.toFixed(2)}ms`);
     console.log(
-      `  Throughput: ${((lockBenchResult.totalOperations / lockBenchResult.totalDuration) * 1000).toFixed(2)} ops/second`
+      `  Throughput: ${((lockBenchResult.totalOperations / lockBenchResult.totalDuration) * 1000).toFixed(2)} ops/second`,
     );
 
     // AtomicWriter: Throughput (writes/second)
-    const writerBenchDir = path.join(TEST_DIR, 'writer-bench');
+    const writerBenchDir = path.join(TEST_DIR, "writer-bench");
     await fs.mkdir(writerBenchDir, { recursive: true });
 
-    console.log('\nBenchmark 2: AtomicWriter throughput (3 workers × 50 files)');
+    console.log("\nBenchmark 2: AtomicWriter throughput (3 workers × 50 files)");
     const writerBenchResult = await runAtomicWriterTest(writerBenchDir, 3, 50);
     console.log(`  Average write time: ${writerBenchResult.avgWriteTime.toFixed(2)}ms`);
     console.log(`  Throughput: ${writerBenchResult.throughput.toFixed(2)} writes/second`);
@@ -234,11 +234,11 @@ async function runFileLockTest(
   runNumber: number,
   resourcePath: string,
   numWorkers: number,
-  operationsPerWorker: number
+  operationsPerWorker: number,
 ): Promise<FileLockTestResult> {
   const workerCode = `
     const { parentPort, workerData } = require('worker_threads');
-    const { FileLock } = require('${path.resolve(__dirname, '../../dist/shared/file-lock.js')}');
+    const { FileLock } = require('${path.resolve(__dirname, "../../dist/shared/file-lock.js")}');
     const fs = require('fs/promises');
 
     async function run() {
@@ -320,8 +320,8 @@ async function runFileLockTest(
     workers.push(worker);
 
     const promise = new Promise<WorkerResult>((resolve, reject) => {
-      worker.on('message', resolve);
-      worker.on('error', reject);
+      worker.on("message", resolve);
+      worker.on("error", reject);
     });
 
     workerPromises.push(promise);
@@ -352,7 +352,7 @@ async function runFileLockTest(
   // Read final count
   let actualCount = 0;
   try {
-    const content = await fs.readFile(resourcePath, 'utf8');
+    const content = await fs.readFile(resourcePath, "utf8");
     actualCount = parseInt(content, 10) || 0;
   } catch (_error) {
     // File doesn't exist
@@ -390,11 +390,11 @@ async function runFileLockTest(
 async function runAtomicWriterTest(
   testDir: string,
   numWorkers: number,
-  filesPerWorker: number
+  filesPerWorker: number,
 ): Promise<AtomicWriterTestResult> {
   const workerCode = `
     const { parentPort, workerData } = require('worker_threads');
-    const { AtomicWriter } = require('${path.resolve(__dirname, '../../dist/shared/atomic-writer.js')}');
+    const { AtomicWriter } = require('${path.resolve(__dirname, "../../dist/shared/atomic-writer.js")}');
     const fs = require('fs/promises');
     const path = require('path');
 
@@ -466,8 +466,8 @@ async function runAtomicWriterTest(
     workers.push(worker);
 
     const promise = new Promise<WorkerResult>((resolve, reject) => {
-      worker.on('message', resolve);
-      worker.on('error', reject);
+      worker.on("message", resolve);
+      worker.on("error", reject);
     });
 
     workerPromises.push(promise);
@@ -476,7 +476,7 @@ async function runAtomicWriterTest(
   const results = await Promise.all(workerPromises);
   const totalDuration = performance.now() - startTime;
 
-  const workerResults: AtomicWriterTestResult['workerResults'] = [];
+  const workerResults: AtomicWriterTestResult["workerResults"] = [];
   let totalFiles = 0;
   let totalCorruptions = 0;
   const allWriteTimes: number[] = [];

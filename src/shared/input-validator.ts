@@ -56,12 +56,12 @@ export class InputValidator {
    * Forbidden patterns that indicate potential security issues
    */
   private readonly forbiddenPatterns: Array<{ pattern: RegExp; name: string }> = [
-    { pattern: /\$\{.*\}/, name: 'Template injection' },
-    { pattern: /<script/i, name: 'Script injection' },
-    { pattern: /\.\.\/\.\.\//g, name: 'Path traversal' },
-    { pattern: /javascript:/i, name: 'JavaScript protocol' },
-    { pattern: /data:text\/html/i, name: 'Data URI HTML' },
-    { pattern: /on\w+\s*=/i, name: 'Event handler' },
+    { pattern: /\$\{.*\}/, name: "Template injection" },
+    { pattern: /<script/i, name: "Script injection" },
+    { pattern: /\.\.\/\.\.\//g, name: "Path traversal" },
+    { pattern: /javascript:/i, name: "JavaScript protocol" },
+    { pattern: /data:text\/html/i, name: "Data URI HTML" },
+    { pattern: /on\w+\s*=/i, name: "Event handler" },
   ];
 
   /**
@@ -87,7 +87,7 @@ export class InputValidator {
     if (input.trim().length === 0) {
       return {
         valid: false,
-        error: 'Input cannot be empty',
+        error: "Input cannot be empty",
       };
     }
 
@@ -97,7 +97,7 @@ export class InputValidator {
     // Remove or escape non-ASCII characters if not allowed
     if (!options.allowNonAscii) {
       const originalLength = sanitized.length;
-      sanitized = sanitized.replace(/[^\x20-\x7E\n\r\t]/g, '');
+      sanitized = sanitized.replace(/[^\x20-\x7E\n\r\t]/g, "");
       if (sanitized.length !== originalLength) {
         details.push(`Removed ${originalLength - sanitized.length} non-ASCII characters`);
       }
@@ -107,9 +107,9 @@ export class InputValidator {
     if (!options.allowYamlSpecialChars) {
       const beforeSanitize = sanitized;
       // Improved YAML sanitization - handles more special chars
-      sanitized = sanitized.replace(/^[-!&*[\]{}|>@`"':?%]/gm, '');
+      sanitized = sanitized.replace(/^[-!&*[\]{}|>@`"':?%]/gm, "");
       if (beforeSanitize !== sanitized) {
-        details.push('Removed YAML special characters from line starts');
+        details.push("Removed YAML special characters from line starts");
       }
     }
 
@@ -117,21 +117,21 @@ export class InputValidator {
     const beforeWhitespace = sanitized;
     sanitized = this.normalizeWhitespace(sanitized);
     if (beforeWhitespace !== sanitized) {
-      details.push('Normalized whitespace');
+      details.push("Normalized whitespace");
     }
 
     // Check sanitized content is not empty
     if (sanitized.trim().length === 0) {
       return {
         valid: false,
-        error: 'Input contains no valid content after sanitization',
+        error: "Input contains no valid content after sanitization",
       };
     }
 
     // THEN validate patterns on sanitized input
     const forbiddenPatterns = [
       ...this.forbiddenPatterns,
-      ...(options.customPatterns?.map((p) => ({ pattern: p, name: 'Custom' })) ?? []),
+      ...(options.customPatterns?.map((p) => ({ pattern: p, name: "Custom" })) ?? []),
     ];
 
     for (const { pattern, name } of forbiddenPatterns) {
@@ -174,18 +174,18 @@ export class InputValidator {
    */
   validateFilePath(filePath: string): ValidationResult {
     // Check for path traversal
-    if (filePath.includes('..')) {
+    if (filePath.includes("..")) {
       return {
         valid: false,
-        error: 'Path traversal detected',
+        error: "Path traversal detected",
       };
     }
 
     // Check for absolute paths (should be relative)
-    if (filePath.startsWith('/')) {
+    if (filePath.startsWith("/")) {
       return {
         valid: false,
-        error: 'Absolute paths are not allowed',
+        error: "Absolute paths are not allowed",
       };
     }
 
@@ -193,7 +193,7 @@ export class InputValidator {
     if (!/^[a-zA-Z0-9_.\-/]+$/.test(filePath)) {
       return {
         valid: false,
-        error: 'Invalid characters in file path',
+        error: "Invalid characters in file path",
       };
     }
 
@@ -223,7 +223,7 @@ export class InputValidator {
     if (identifier.trim().length === 0) {
       return {
         valid: false,
-        error: 'Identifier cannot be empty',
+        error: "Identifier cannot be empty",
       };
     }
 
@@ -231,7 +231,7 @@ export class InputValidator {
     if (!/^[a-zA-Z0-9]/.test(identifier)) {
       return {
         valid: false,
-        error: 'Identifier must start with a letter or number',
+        error: "Identifier must start with a letter or number",
       };
     }
 
@@ -239,7 +239,7 @@ export class InputValidator {
     if (!/^[a-zA-Z0-9_-]+$/.test(identifier)) {
       return {
         valid: false,
-        error: 'Identifier must contain only letters, numbers, dashes, and underscores',
+        error: "Identifier must contain only letters, numbers, dashes, and underscores",
       };
     }
 
@@ -260,13 +260,13 @@ export class InputValidator {
    */
   private normalizeWhitespace(input: string): string {
     // Normalize line endings
-    let normalized = input.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    let normalized = input.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
     // Remove leading and trailing whitespace from each line
-    normalized = normalized.replace(/^[ \t]+/gm, '').replace(/[ \t]+$/gm, '');
+    normalized = normalized.replace(/^[ \t]+/gm, "").replace(/[ \t]+$/gm, "");
 
     // Collapse multiple consecutive blank lines to single blank line
-    normalized = normalized.replace(/\n{3,}/g, '\n\n');
+    normalized = normalized.replace(/\n{3,}/g, "\n\n");
 
     // Trim overall input
     normalized = normalized.trim();

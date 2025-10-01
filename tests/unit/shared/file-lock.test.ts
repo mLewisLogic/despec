@@ -1,11 +1,11 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { FileLock } from '../../../src/shared/file-lock.js';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { FileLock } from "../../../src/shared/file-lock.js";
 
-const TEST_DIR = '/tmp/despec-file-lock-tests';
+const TEST_DIR = "/tmp/despec-file-lock-tests";
 
-describe('FileLock', () => {
+describe("FileLock", () => {
   beforeEach(async () => {
     await fs.mkdir(TEST_DIR, { recursive: true });
   });
@@ -14,9 +14,9 @@ describe('FileLock', () => {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
   });
 
-  test('acquires and releases a lock', async () => {
+  test("acquires and releases a lock", async () => {
     const lock = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     await lock.acquire(resourcePath);
     expect(lock.isHeld(resourcePath)).toBe(true);
@@ -25,10 +25,10 @@ describe('FileLock', () => {
     expect(lock.isHeld(resourcePath)).toBe(false);
   });
 
-  test('prevents concurrent access to same resource', async () => {
+  test("prevents concurrent access to same resource", async () => {
     const lock1 = new FileLock();
     const lock2 = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     await lock1.acquire(resourcePath);
 
@@ -38,17 +38,17 @@ describe('FileLock', () => {
       await lock2.acquire(resourcePath, { timeout: 100, retryInterval: 10 });
     } catch (error) {
       timedOut = true;
-      expect((error as Error).message).toContain('Lock acquisition timeout');
+      expect((error as Error).message).toContain("Lock acquisition timeout");
     }
     expect(timedOut).toBe(true);
 
     await lock1.release(resourcePath);
   });
 
-  test('allows sequential access after release', async () => {
+  test("allows sequential access after release", async () => {
     const lock1 = new FileLock();
     const lock2 = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     await lock1.acquire(resourcePath);
     await lock1.release(resourcePath);
@@ -59,43 +59,43 @@ describe('FileLock', () => {
     await lock2.release(resourcePath);
   });
 
-  test('withLock executes function with lock held', async () => {
+  test("withLock executes function with lock held", async () => {
     const lock = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
     let executed = false;
 
     const result = await lock.withLock(resourcePath, async () => {
       executed = true;
       expect(lock.isHeld(resourcePath)).toBe(true);
-      return 'success';
+      return "success";
     });
 
     expect(executed).toBe(true);
-    expect(result).toBe('success');
+    expect(result).toBe("success");
     expect(lock.isHeld(resourcePath)).toBe(false);
   });
 
-  test('withLock releases lock on error', async () => {
+  test("withLock releases lock on error", async () => {
     const lock = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     try {
       await lock.withLock(resourcePath, async () => {
-        throw new Error('Test error');
+        throw new Error("Test error");
       });
       expect(true).toBe(false); // Should not reach here
     } catch (error) {
-      expect((error as Error).message).toBe('Test error');
+      expect((error as Error).message).toBe("Test error");
       expect(lock.isHeld(resourcePath)).toBe(false);
     }
   });
 
-  test('releaseAll releases all held locks', async () => {
+  test("releaseAll releases all held locks", async () => {
     const lock = new FileLock();
     const resources = [
-      path.join(TEST_DIR, 'resource1.txt'),
-      path.join(TEST_DIR, 'resource2.txt'),
-      path.join(TEST_DIR, 'resource3.txt'),
+      path.join(TEST_DIR, "resource1.txt"),
+      path.join(TEST_DIR, "resource2.txt"),
+      path.join(TEST_DIR, "resource3.txt"),
     ];
 
     for (const resource of resources) {
@@ -112,9 +112,9 @@ describe('FileLock', () => {
     }
   });
 
-  test('detects and cleans stale locks', async () => {
+  test("detects and cleans stale locks", async () => {
     const lock1 = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     // Create a stale lock directory manually with old timestamp
     const lockPath = `${resourcePath}.lock`;
@@ -122,12 +122,12 @@ describe('FileLock', () => {
 
     const metadata = {
       pid: 99999, // Non-existent PID
-      hostname: 'stale-host',
-      lockId: 'stale-lock-id',
+      hostname: "stale-host",
+      lockId: "stale-lock-id",
       timestamp: Date.now() - 2000, // 2 seconds ago
     };
 
-    const metadataPath = path.join(lockPath, 'metadata.json');
+    const metadataPath = path.join(lockPath, "metadata.json");
     await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
 
     // Should acquire lock by cleaning stale lock
@@ -137,10 +137,10 @@ describe('FileLock', () => {
     await lock1.release(resourcePath);
   });
 
-  test('respects custom timeout', async () => {
+  test("respects custom timeout", async () => {
     const lock1 = new FileLock();
     const lock2 = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     await lock1.acquire(resourcePath);
 
@@ -157,10 +157,10 @@ describe('FileLock', () => {
     await lock1.release(resourcePath);
   });
 
-  test('respects custom retry interval', async () => {
+  test("respects custom retry interval", async () => {
     const lock1 = new FileLock();
     const lock2 = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     await lock1.acquire(resourcePath);
 
@@ -177,9 +177,9 @@ describe('FileLock', () => {
     await lock1.release(resourcePath);
   });
 
-  test('getHeldLocks returns lock information', async () => {
+  test("getHeldLocks returns lock information", async () => {
     const lock = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     await lock.acquire(resourcePath);
 
@@ -193,9 +193,9 @@ describe('FileLock', () => {
     await lock.release(resourcePath);
   });
 
-  test('release is safe to call multiple times', async () => {
+  test("release is safe to call multiple times", async () => {
     const lock = new FileLock();
-    const resourcePath = path.join(TEST_DIR, 'resource.txt');
+    const resourcePath = path.join(TEST_DIR, "resource.txt");
 
     await lock.acquire(resourcePath);
     await lock.release(resourcePath);
@@ -204,23 +204,23 @@ describe('FileLock', () => {
     expect(lock.isHeld(resourcePath)).toBe(false);
   });
 
-  test('handles concurrent lock attempts correctly', async () => {
-    const resourcePath = path.join(TEST_DIR, 'contested.txt');
+  test("handles concurrent lock attempts correctly", async () => {
+    const resourcePath = path.join(TEST_DIR, "contested.txt");
     const locks = Array.from({ length: 3 }, () => new FileLock());
 
     const results = await Promise.allSettled(
-      locks.map((lock) => lock.acquire(resourcePath, { timeout: 300, retryInterval: 20 }))
+      locks.map((lock) => lock.acquire(resourcePath, { timeout: 300, retryInterval: 20 })),
     );
 
     // Exactly one should succeed
-    const succeeded = results.filter((r) => r.status === 'fulfilled');
-    const failed = results.filter((r) => r.status === 'rejected');
+    const succeeded = results.filter((r) => r.status === "fulfilled");
+    const failed = results.filter((r) => r.status === "rejected");
 
     expect(succeeded.length).toBe(1);
     expect(failed.length).toBe(2);
 
     // Release the successful lock
-    const successIndex = results.findIndex((r) => r.status === 'fulfilled');
+    const successIndex = results.findIndex((r) => r.status === "fulfilled");
     await locks[successIndex]!.release(resourcePath);
   });
 });

@@ -1,7 +1,7 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { hrtime } from 'node:process';
-import { nanoid } from 'nanoid';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { hrtime } from "node:process";
+import { nanoid } from "nanoid";
 
 /**
  * Interface for file write operations
@@ -68,26 +68,26 @@ export class AtomicWriter {
     try {
       // Ensure all parent directories exist
       await Promise.all(
-        tempFiles.map((f) => fs.mkdir(path.dirname(f.original), { recursive: true }))
+        tempFiles.map((f) => fs.mkdir(path.dirname(f.original), { recursive: true })),
       );
 
       // Write all content to temporary files with secure permissions
       await Promise.all(
         tempFiles.map(async (f) => {
-          await fs.writeFile(f.temp, f.content, { encoding: 'utf8', mode: 0o600 });
-        })
+          await fs.writeFile(f.temp, f.content, { encoding: "utf8", mode: 0o600 });
+        }),
       );
 
       // Fsync all temp files to ensure durability before rename
       await Promise.all(
         tempFiles.map(async (f) => {
-          const handle = await fs.open(f.temp, 'r+');
+          const handle = await fs.open(f.temp, "r+");
           try {
             await handle.sync();
           } finally {
             await handle.close();
           }
-        })
+        }),
       );
 
       // Atomically rename all temporary files to their final destinations
@@ -98,8 +98,8 @@ export class AtomicWriter {
         tempFiles.map((f) =>
           fs.unlink(f.temp).catch(() => {
             // Ignore cleanup errors - file may not exist
-          })
-        )
+          }),
+        ),
       );
 
       const errorMessage = error instanceof Error ? error.message : String(error);

@@ -1,12 +1,12 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { Worker } from 'node:worker_threads';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { getIterationCount } from '../utils/test-helpers';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Worker } from "node:worker_threads";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { getIterationCount } from "../utils/test-helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_DIR = path.join('/tmp', 'despec-race-test');
+const TEST_DIR = path.join("/tmp", "despec-race-test");
 
 interface WorkerResult {
   success: boolean;
@@ -18,7 +18,7 @@ interface WorkerResult {
   error?: string;
 }
 
-describe('Race Condition Verification', () => {
+describe("Race Condition Verification", () => {
   beforeEach(async () => {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
     await fs.mkdir(TEST_DIR, { recursive: true });
@@ -28,15 +28,15 @@ describe('Race Condition Verification', () => {
     await fs.rm(TEST_DIR, { recursive: true, force: true });
   });
 
-  it('should verify if FileLock has race conditions', async () => {
-    const resourcePath = path.join(TEST_DIR, 'counter.txt');
+  it("should verify if FileLock has race conditions", async () => {
+    const resourcePath = path.join(TEST_DIR, "counter.txt");
     // Reduced for faster standard tests
     const numWorkers = getIterationCount(5, 10);
     const incrementsPerWorker = getIterationCount(10, 20);
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { FileLock } = require('${path.resolve(__dirname, '../../dist/shared/file-lock.cjs')}');
+      const { FileLock } = require('${path.resolve(__dirname, "../../dist/shared/file-lock.cjs")}');
       const fs = require('fs/promises');
 
       async function run() {
@@ -104,16 +104,16 @@ describe('Race Condition Verification', () => {
       workers.push(worker);
       workerPromises.push(
         new Promise((resolve, reject) => {
-          worker.on('message', resolve);
-          worker.on('error', reject);
-        })
+          worker.on("message", resolve);
+          worker.on("error", reject);
+        }),
       );
     }
 
     const results = (await Promise.all(workerPromises)) as WorkerResult[];
 
     // Check final value
-    const finalValue = parseInt(await fs.readFile(resourcePath, 'utf8'), 10);
+    const finalValue = parseInt(await fs.readFile(resourcePath, "utf8"), 10);
 
     // Analyze results
     let totalSuccess = 0;
@@ -145,7 +145,7 @@ describe('Race Condition Verification', () => {
       }
     }
     if (missing.length > 0) {
-      console.log(`Missing values: ${missing.join(', ')}`);
+      console.log(`Missing values: ${missing.join(", ")}`);
     }
 
     // The final value should match the expected count
@@ -158,14 +158,14 @@ describe('Race Condition Verification', () => {
     }
   }, 30000);
 
-  it('should test AtomicWriter for data corruption', async () => {
-    const testFile = path.join(TEST_DIR, 'atomic-test.txt');
+  it("should test AtomicWriter for data corruption", async () => {
+    const testFile = path.join(TEST_DIR, "atomic-test.txt");
     const numWorkers = 10;
     const writesPerWorker = 20;
 
     const workerCode = `
       const { parentPort, workerData } = require('worker_threads');
-      const { AtomicWriter } = require('${path.resolve(__dirname, '../../dist/shared/atomic-writer.cjs')}');
+      const { AtomicWriter } = require('${path.resolve(__dirname, "../../dist/shared/atomic-writer.cjs")}');
       const fs = require('fs/promises');
 
       async function run() {
@@ -210,7 +210,7 @@ describe('Race Condition Verification', () => {
     const workerPromises = [];
 
     console.log(
-      `\nTesting AtomicWriter with ${numWorkers} workers, ${writesPerWorker} writes each...`
+      `\nTesting AtomicWriter with ${numWorkers} workers, ${writesPerWorker} writes each...`,
     );
 
     for (let i = 0; i < numWorkers; i++) {
@@ -226,16 +226,16 @@ describe('Race Condition Verification', () => {
       workers.push(worker);
       workerPromises.push(
         new Promise((resolve, reject) => {
-          worker.on('message', resolve);
-          worker.on('error', reject);
-        })
+          worker.on("message", resolve);
+          worker.on("error", reject);
+        }),
       );
     }
 
     const results = (await Promise.all(workerPromises)) as WorkerResult[];
 
     // Check final file content
-    const finalContent = await fs.readFile(testFile, 'utf8');
+    const finalContent = await fs.readFile(testFile, "utf8");
 
     // Analyze results
     let totalWrites = 0;
@@ -265,7 +265,7 @@ describe('Race Condition Verification', () => {
     console.log(`Successful writes (verified): ${successfulWrites}`);
     console.log(`Corrupted writes: ${corruptedWrites}`);
     console.log(
-      `Final file content matches pattern: ${/Worker-\d+-Write-\d+-\d+/.test(finalContent)}`
+      `Final file content matches pattern: ${/Worker-\d+-Write-\d+-\d+/.test(finalContent)}`,
     );
 
     expect(corruptedWrites).toBe(0);
