@@ -4,8 +4,8 @@ on:
   push:
 
 jobs:
-  lint:
-    name: Lint
+  typescript-typecheck:
+    name: TypeScript Type Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -21,15 +21,60 @@ jobs:
         run: bun install
 
       - name: TypeScript type check
-        run: mise run ts-typecheck
-      - name: Biome lint (TS/JSON)
-        run: mise run biome-lint
-      - name: Markdown lint
-        run: mise run markdown-lint
-      - name: TOML lint
-        run: mise run toml-lint
+        run: mise run typescript:typecheck
 
-  test:
+  biome-lint:
+    name: Biome Lint (TS/JSON)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Biome lint
+        run: mise run biome:lint:nofix
+
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Markdown lint
+        run: mise run markdown:lint:nofix
+
+  toml-lint:
+    name: TOML Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: TOML lint
+        run: mise run toml:lint:nofix
+
+  test-full:
     name: Test - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -53,12 +98,26 @@ jobs:
       - name: Run full test suite
         run: mise run test:full
 
+  test-coverage:
+    name: Test Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: bun install
+
       - name: Generate coverage report
-        if: matrix.os == 'ubuntu-latest'
         run: mise run test:coverage
 
       - name: Upload coverage to Codecov
-        if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage/lcov.info
@@ -66,7 +125,7 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: false
 
-  security:
+  security-audit:
     name: Security Audit
     runs-on: ubuntu-latest
     steps:

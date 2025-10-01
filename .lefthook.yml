@@ -23,35 +23,35 @@ pre-commit:
     # ===========================================================================
     # TYPESCRIPT/JSON (Biome)
     # ===========================================================================
-    - name: ts-typecheck
+    - name: typescript:typecheck
       glob: "*.{ts,tsx}"
-      run: mise run ts-typecheck
-    - name: biome-lint
+      run: mise run typescript:typecheck
+    - name: biome:lint
       glob: "*.{ts,tsx,js,jsx,json}"
-      run: mise run biome-lint
+      run: mise run biome:lint:nofix
 
     # ===========================================================================
     # MARKDOWN
     # ===========================================================================
-    - name: markdown-lint
+    - name: markdown:lint
       glob: "*.md"
-      run: mise run markdown-lint
+      run: mise run markdown:lint:nofix
 
     # ===========================================================================
     # TOML
     # ===========================================================================
-    - name: toml-lint
+    - name: toml:lint
       glob: "*.toml"
-      run: mise run toml-lint
+      run: mise run toml:lint:nofix
 
     # ===========================================================================
     # GENERAL FILE CHECKS
     # ===========================================================================
-    - name: general-checks
+    - name: files:check
       group:
         parallel: false
         jobs:
-          - name: trailing-whitespace
+          - name: files:whitespace:trailing
             file_types: [text]
             run: |
               for file in {staged_files}; do
@@ -61,7 +61,7 @@ pre-commit:
                 fi
               done
 
-          - name: end-of-file-fixer
+          - name: files:eof:fix
             file_types: [text]
             run: |
               for file in {staged_files}; do
@@ -73,7 +73,7 @@ pre-commit:
                 fi
               done
 
-          - name: mixed-line-ending
+          - name: files:lineending:fix
             file_types: [text]
             run: |
               for file in {staged_files}; do
@@ -84,7 +84,7 @@ pre-commit:
                 fi
               done
 
-          - name: check-added-large-files
+          - name: files:size:check
             glob: "*"
             run: |
               MAX_SIZE=5000000  # 5MB in bytes
@@ -98,7 +98,7 @@ pre-commit:
                 fi
               done
 
-          - name: check-merge-conflict
+          - name: files:conflict:check
             file_types: [text]
             run: |
               for file in {staged_files}; do
@@ -108,7 +108,7 @@ pre-commit:
                 fi
               done
 
-          - name: detect-private-key
+          - name: security:privatekey:detect
             file_types: [text]
             run: |
               for file in {staged_files}; do

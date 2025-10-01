@@ -1,164 +1,183 @@
 # xdd
 
-**Specification-Driven Development System V2**
+**Specification-Driven Development**
 
-Transform natural language requirements into structured, validated specifications through TypeScript SDK with LLM integration.
-
-## Quick Start
-
-```bash
-# Install dependencies
-bun install
-
-# Set up git hooks for automated testing
-bun x lefthook install
-
-# Run development mode
-mise run dev
-
-# Initialize project with specifications (coming in Phase 1)
-xdd specify "Build a web application with OAuth authentication and PostgreSQL storage"
-
-# Add features (coming in Phase 1)
-xdd specify "Add real-time WebSocket notifications"
-
-# Validate (coming in Phase 1)
-xdd validate
-```
+Transform natural language requirements into structured, validated specifications.
 
 ## What is xdd?
 
-xdd is a three-stage pipeline for transforming ideas into implementation:
+xdd helps you capture and manage software requirements using a three-stage pipeline:
 
-1. **Specs Stage**: Natural language → Structured requirements (EARS format)
-2. **Design Stage**: Requirements → Component architecture and technical decisions
-3. **Tasks Stage**: Design → Prioritized implementation with TDD enforcement
+1. **Specs Stage** (Current): Natural language → Structured requirements in EARS format
+2. **Design Stage** (Future): Requirements → Component architecture and technical decisions
+3. **Tasks Stage** (Future): Design → Prioritized implementation backlog
 
-**Key Innovation**: TypeScript SDK with Zod schemas enforces correctness at write-time. LLM agents use the SDK as a tool, eliminating ambiguity.
+**Current Focus**: Stage 1 - Specifications. Transform your ideas into validated, traceable requirements.
 
-## Features
+## Quick Start
 
-### Phase 0 (Complete) ✅
-- ✅ **Foundation Utilities**: Atomic writes, file locking, input validation
-- ✅ **Test Infrastructure**: Comprehensive unit and integration tests
-- ✅ **CI/CD Pipeline**: GitHub Actions + git hooks
-- ✅ **Single-Agent Optimized**: Best-effort atomicity for practical use
-
-### Phase 1 (In Progress) 🚧
-- 🚧 **Natural Language Interface**: Describe requirements in plain English
-- 🚧 **Type-Safe**: Zod schemas validate at write-time
-- 🚧 **Event Sourcing**: Complete audit trail of all changes
-- 🚧 **LLM-Powered**: Claude integration for semantic understanding
-- 🚧 **Single Command**: `xdd specify "..."` does it all
-- 🚧 **Deterministic IDs**: nanoid-based requirement IDs
-
-## Installation
+### Installation
 
 ```bash
-# Using Bun (recommended)
-bun install -g xdd
+# Clone and install
+git clone https://github.com/yourusername/xdd.git
+cd xdd
+bun install
 
-# Using npm
-npm install -g xdd
+# Set up git hooks
+bun x lefthook install
 ```
 
-## Documentation
-
-- **[SPEC.md](./SPEC.md)** - Complete system specification
-- **Examples** - Coming soon
-- **API Reference** - Coming soon
-
-## Development
-
-### Testing
+### Usage (Stage 1 - Specs)
 
 ```bash
-# Quick tests (unit only, ~4s)
-mise run test
+# Create requirements from natural language (coming soon)
+xdd specify "Build a web application with OAuth authentication and PostgreSQL storage"
 
-# Watch mode for development
-mise run test-watch
+# Add more requirements
+xdd specify "Add real-time WebSocket notifications"
 
-# Full test suite with coverage
-mise run test-coverage
+# Validate your specifications
+xdd validate
 
-# Integration tests
-mise run test-integration
+# Query existing requirements
+xdd query "list AUTH requirements"
 ```
 
-### Code Quality
+### For Developers
 
 ```bash
-# Fix all linting issues
-mise run lint-all
+# Run tests
+mise run test:unit           # Quick unit tests (~4s)
+mise run test:full           # All tests
 
-# Check only (no fixes)
-mise run lint-all-check
+# Check code quality
+mise run lint:all:fix        # Fix linting issues
+mise run quality-check       # Full quality validation
 
-# Pre-commit checks (fast)
-mise run pre-commit
-
-# Pre-push checks (comprehensive)
-mise run pre-push
-
-# Full quality check
-mise run quality-check
+# See all available tasks
+mise tasks
 ```
 
-### Build & Clean
+See **[TASKS.md](./TASKS.md)** for complete task reference.
 
-```bash
-# Build for distribution
-mise run build
+## How It Works
 
-# Clean artifacts
-mise run clean
+### Stage 1: Specifications
 
-# Update dependencies
-mise run deps-update
+xdd transforms your natural language requirements into structured YAML files that follow the EARS (Easy Approach to Requirements Syntax) format.
+
+**Input**: "Users should be able to log in with OAuth"
+
+**Output**: Structured requirement with:
+
+- Unique ID (collision-resistant)
+- EARS-formatted description
+- Acceptance criteria (behavioral or assertion)
+- Category and priority
+- Complete audit trail
+
+### File Structure
+
+All specifications are stored in `.xdd/01-specs/`:
+
+```text
+.xdd/01-specs/
+├── specification.yaml    # Current requirements
+├── changelog.yaml        # Event log (audit trail)
+├── snapshots/           # Periodic state snapshots
+└── .locks/              # Concurrency control
 ```
 
-### lefthook
+### EARS Format
 
-```bash
-lefthook run pre-commit --all-files
-```
+Requirements follow EARS patterns:
 
-## Project Structure
+- **Ubiquitous**: "The system shall always maintain session state"
+- **Event-Driven**: "When user clicks login, the system shall redirect to OAuth provider"
+- **State-Driven**: "While user is authenticated, the system shall display profile menu"
+- **Optional**: "Where OAuth is unavailable, the system shall offer email login"
 
-```
-.xdd/                    # Generated artifacts
-├── 01-specs/
-│   ├── specification.yaml
-│   └── changelog.yaml
-├── 02-design/
-└── 03-tasks/
+### Key Features
 
-src/                       # SDK implementation
-├── 01-specs/             # Specs stage
-├── 02-design/            # Design stage (TODO)
-├── 03-tasks/             # Tasks stage (TODO)
-└── cli.ts                # CLI entry
-```
+**Stage 1 (Current)**:
+
+- ✅ **Type-Safe**: Zod schemas enforce correctness at write-time
+- ✅ **Event Sourcing**: Complete audit trail of all changes
+- ✅ **Deterministic IDs**: Collision-resistant nanoid-based IDs
+- ✅ **Safe Writes**: Atomic write operations with file locking
+- 🚧 **Natural Language**: Claude integration for semantic parsing (in progress)
+
+**Future Stages**:
+
+- 📅 Stage 2: Component design and architecture decisions
+- 📅 Stage 3: Task generation with TDD enforcement
 
 ## Current Status
 
 **Version**: 2.0.0-alpha
-**Phase 0**: ✅ Complete (Foundation)
-**Phase 1**: 🚧 In Progress (Specs Stage)
-**Confidence**: 6/10 (Production-ready for single-agent use on local filesystems)
+**Stage**: 1 - Specifications (In Progress)
+**Stability**: Development (not production-ready)
 
-### What's Working Now
+### What's Working
+
 - Foundation utilities (AtomicWriter, FileLock, InputValidator, ErrorHandler)
-- Comprehensive test suite (138 tests, 99.3% pass rate)
+- Zod schemas for all specification entities
+- ID generation with collision resistance
+- Comprehensive test suite (171 passing tests)
 - CI/CD pipeline with GitHub Actions
-- Git hooks for automated validation
-- Best-effort atomicity for single-agent use
 
-### Documentation
-- [SPEC.md](./SPEC.md) - Complete system specification
-- [docs/system/](./docs/system/) - Current implementation details
-- [TODO.md](./TODO.md) - Future work and known issues
+### What's Next
+
+See **[TODO.md](./TODO.md)** for:
+
+- Current phase progress
+- Known issues
+- Upcoming features
+- Risk mitigations
+
+## Documentation
+
+- **[SPEC.md](./SPEC.md)** - Complete technical specification
+- **[TODO.md](./TODO.md)** - Development roadmap and known issues
+- **[TASKS.md](./TASKS.md)** - Available development tasks
+- **[docs/system/](./docs/system/)** - Implementation details
+
+## Target Users
+
+xdd is designed for:
+
+- Solo developers and small teams (2-3 people)
+- Internal tools and small-scale applications
+- Single-agent AI workflows
+- Local filesystem operations
+
+**Not suited for**:
+
+- Large teams requiring multi-user collaboration
+- Distributed systems across network filesystems
+- Enterprise-scale requirement management
+
+## Philosophy
+
+**Write-Time Validation**: TypeScript + Zod enforce correctness before data touches disk.
+
+**Event Sourcing**: Every change is tracked. Requirements are append-only with periodic snapshots.
+
+**Single Command UX**: Natural language in, structured YAML out.
+
+**Computed Traceability**: No forward links. Relationships computed from backlinks on demand.
+
+**YAML as Database**: Text-based artifacts are the source of truth.
+
+## Contributing
+
+See **[SPEC.md](./SPEC.md)** for:
+
+- Architecture principles
+- Data models
+- Critical implementation patterns
+- Development phases
 
 ## License
 

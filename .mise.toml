@@ -18,6 +18,95 @@ run = "bun"
 description = "Run Bun"
 
 # =============================================================================
+# Installation & Setup
+# =============================================================================
+
+[tasks.install]
+description = "Install dependencies"
+run = "bun install"
+
+
+# =============================================================================
+# Linting - TypeScript
+# =============================================================================
+
+[tasks."typescript:typecheck"]
+run = "bun x tsc --noEmit"
+description = "Run TypeScript type checking"
+
+[tasks."biome:lint:nofix"]
+run = "biome check"
+description = "Lint TypeScript files"
+
+[tasks."biome:lint:fix"]
+run = "biome check --fix"
+description = "Lint and fix TypeScript files"
+
+# =============================================================================
+# Linting - Markdown
+# =============================================================================
+
+[tasks."markdown:lint:nofix"]
+run = "markdownlint-cli2 '**/*.md'"
+description = "Lint Markdown files"
+
+[tasks."markdown:lint:fix"]
+run = "markdownlint-cli2 '**/*.md' --fix"
+description = "Lint and fix Markdown files"
+
+# =============================================================================
+# Linting - TOML
+# =============================================================================
+
+[tasks."toml:lint:nofix"]
+run = "taplo format --check && taplo lint"
+description = "Check TOML formatting and validate"
+
+[tasks."toml:lint:fix"]
+run = "taplo format"
+description = "Format TOML files"
+
+
+# =============================================================================
+# Linting - JSON
+# =============================================================================
+
+[tasks."json:lint:nofix"]
+run = "biome check"
+description = "Lint JSON files"
+
+[tasks."json:lint:fix"]
+run = "biome check --fix"
+description = "Lint and fix JSON files"
+
+
+# =============================================================================
+# Comprehensive Linting
+# =============================================================================
+
+[tasks."lint:all:nofix"]
+depends = [
+  "typescript:typecheck",
+  "typescript:lint:nofix",
+  "markdown:lint:nofix",
+  "toml:lint:nofix",
+  "json:lint:nofix",
+]
+description = "Run all linters (check only, no fixes)"
+run = "echo '✅ All linting checks passed!'"
+
+[tasks."lint:all:fix"]
+depends = [
+  "typescript:typecheck",
+  "typescript:lint:fix",
+  "markdown:lint:fix",
+  "toml:lint:fix",
+  "json:lint:fix",
+]
+description = "Run all linters with fixes"
+run = "echo '✅ All linting checks passed!'"
+
+# =============================================================================
 # Testing
 # =============================================================================
 
@@ -43,66 +132,6 @@ description = "Run test suite in CI mode"
 
 
 # =============================================================================
-# Linting - TypeScript/JSON
-# =============================================================================
-
-[tasks.ts-typecheck]
-run = "bun x tsc --noEmit"
-description = "Run TypeScript type checking"
-
-[tasks.biome-lint]
-run = "biome check"
-description = "Lint TypeScript and JSON files"
-
-[tasks.biome-lint-fix]
-run = "biome check --fix"
-description = "Lint and fix TypeScript and JSON files"
-
-# =============================================================================
-# Linting - Markdown
-# =============================================================================
-
-[tasks.markdown-lint]
-run = "markdownlint-cli2 '**/*.md'"
-description = "Lint Markdown files"
-
-[tasks.markdown-lint-fix]
-run = "markdownlint-cli2 '**/*.md' --fix"
-description = "Lint and fix Markdown files"
-
-# =============================================================================
-# Linting - TOML
-# =============================================================================
-
-[tasks.toml-lint]
-run = "taplo format --check && taplo lint"
-description = "Check TOML formatting and validate"
-
-[tasks.toml-lint-fix]
-run = "taplo format"
-description = "Format TOML files"
-
-# =============================================================================
-# Comprehensive Linting
-# =============================================================================
-
-[tasks.lint-all]
-depends = ["ts-typecheck", "biome-lint", "markdown-lint", "toml-lint"]
-description = "Run all linters (check only, no fixes)"
-run = "echo '✅ All linting checks passed!'"
-
-[tasks.lint-all-fix]
-depends = [
-  "ts-typecheck",
-  "biome-lint-fix",
-  "markdown-lint-fix",
-  "toml-lint-fix",
-]
-description = "Run all linters with fixes"
-run = "echo '✅ All linting checks passed!'"
-
-
-# =============================================================================
 # Schema Generation
 # =============================================================================
 
@@ -119,19 +148,9 @@ description = "Validate JSON schemas against examples"
 # =============================================================================
 
 [tasks.quality-check]
-depends = ["lint-all", "test", "generate-schemas", "validate-schemas"]
+depends = ["lint:all:nofix", "test", "generate-schemas", "validate-schemas"]
 description = "Run all quality checks (lint, test, schemas)"
 run = "echo '✨ All quality checks passed! Ready for commit.'"
-
-[tasks.pre-commit]
-depends = ["lint-all", "test"]
-description = "Pre-commit checks (fast)"
-run = "echo '✅ Pre-commit checks passed!'"
-
-[tasks.pre-push]
-depends = ["quality-check", "test-coverage"]
-description = "Pre-push checks (comprehensive)"
-run = "echo '✅ Pre-push checks passed!'"
 
 # =============================================================================
 # Utilities
