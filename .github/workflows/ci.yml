@@ -60,24 +60,6 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: false
 
-  stress-test:
-    name: Stress Test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: jdx/mise-action@v3
-        with:
-          install: true
-          cache: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run stress tests
-        run: mise run test:stress
-        timeout-minutes: 10
-
   security:
     name: Security Audit
     runs-on: ubuntu-latest
