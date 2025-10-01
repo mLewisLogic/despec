@@ -1,0 +1,3 @@
+[submodule "agent-style-rules"]
+	path = agent-style-rules
+	url = git@github.com-mLewisLogic:mLewisLogic/agent-style-rules.git
