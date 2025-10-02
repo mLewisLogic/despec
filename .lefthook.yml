@@ -10,112 +10,43 @@
 #
 # =============================================================================
 
-# Global configuration
 assert_lefthook_installed: true
 colors: true
 no_tty: false
 
-# Hook definitions
 pre-commit:
   parallel: true
 
   jobs:
-    # ===========================================================================
-    # TYPESCRIPT/JSON (Biome)
-    # ===========================================================================
+    # TypeScript/JSON (Biome)
     - name: typescript:typecheck
       glob: "*.{ts,tsx}"
       run: mise run typescript:typecheck
+
     - name: biome:lint
       glob: "*.{ts,tsx,js,jsx,json}"
       run: mise run biome:lint:nofix
 
-    # ===========================================================================
-    # MARKDOWN
-    # ===========================================================================
+    # Markdown
     - name: markdown:lint
       glob: "*.md"
       run: mise run markdown:lint:nofix
 
-    # ===========================================================================
     # TOML
-    # ===========================================================================
     - name: toml:lint
       glob: "*.toml"
       run: mise run toml:lint:nofix
 
-    # ===========================================================================
-    # GENERAL FILE CHECKS
-    # ===========================================================================
-    - name: files:check
-      group:
-        parallel: false
-        jobs:
-          - name: files:whitespace:trailing
-            file_types: [text]
-            run: |
-              for file in {staged_files}; do
-                if [[ -f "$file" ]]; then
-                  sed -i '' 's/[[:space:]]*$//' "$file"
-                  git add "$file" 2>/dev/null || true
-                fi
-              done
+    # Shell
+    - name: shell:lint
+      glob: "*.sh"
+      run: mise run shell:lint:fix
 
-          - name: files:eof:fix
-            file_types: [text]
-            run: |
-              for file in {staged_files}; do
-                if [[ -f "$file" ]] && [[ -s "$file" ]]; then
-                  if [[ $(tail -c1 "$file" | wc -l) -eq 0 ]]; then
-                    echo "" >> "$file"
-                    git add "$file" 2>/dev/null || true
-                  fi
-                fi
-              done
+    # Go
+    - name: go:format
+      glob: "backend/**/*.go"
+      run: mise run go:format:fix
 
-          - name: files:lineending:fix
-            file_types: [text]
-            run: |
-              for file in {staged_files}; do
-                if [[ -f "$file" ]]; then
-                  # Convert to LF line endings
-                  dos2unix -q "$file"
-                  git add "$file" 2>/dev/null || true
-                fi
-              done
-
-          - name: files:size:check
-            glob: "*"
-            run: |
-              MAX_SIZE=5000000  # 5MB in bytes
-              for file in {staged_files}; do
-                if [[ -f "$file" ]]; then
-                  size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
-                  if [[ $size -gt $MAX_SIZE ]]; then
-                    echo "Error: $file is larger than 5MB ($size bytes)"
-                    exit 1
-                  fi
-                fi
-              done
-
-          - name: files:conflict:check
-            file_types: [text]
-            run: |
-              for file in {staged_files}; do
-                if [[ -f "$file" ]] && grep -E "^(<<<<<<<|>>>>>>>)" "$file" >/dev/null 2>&1; then
-                  echo "Error: Merge conflict markers found in $file"
-                  exit 1
-                fi
-              done
-
-          - name: security:privatekey:detect
-            file_types: [text]
-            run: |
-              for file in {staged_files}; do
-                if [[ -f "$file" ]]; then
-                  if grep -E "(-----BEGIN (RSA|DSA|EC|OPENSSH|PGP) PRIVATE KEY-----)" "$file" >/dev/null 2>&1; then
-                    echo "Error: Private key detected in $file"
-                    exit 1
-                  fi
-                fi
-              done
+    - name: go:lint
+      glob: "backend/**/*.go"
+      run: mise run go:lint:nofix

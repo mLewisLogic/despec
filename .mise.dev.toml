@@ -1,0 +1,5 @@
+[settings]
+sops.age_key_file = "~/.keys/xdd/dev.age.key"
+
+[env]
+_.file = { path = "secrets/dev.enc.yaml", redact = true }

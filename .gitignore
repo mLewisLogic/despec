@@ -26,6 +26,9 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# Claude Code
+.claude/settings.local.json
+
 # Dependencies
 node_modules/
 bun.lockb

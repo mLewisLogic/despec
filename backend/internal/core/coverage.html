@@ -1,0 +1,1081 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>core: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+
+				<option value="file0">xdd/internal/core/config.go (100.0%)</option>
+
+				<option value="file1">xdd/internal/core/errors.go (100.0%)</option>
+
+				<option value="file2">xdd/internal/core/logger.go (100.0%)</option>
+
+				<option value="file3">xdd/internal/core/orchestrator.go (95.3%)</option>
+
+				<option value="file4">xdd/internal/core/session.go (100.0%)</option>
+
+				<option value="file5">xdd/internal/core/session_cli.go (72.8%)</option>
+
+				<option value="file6">xdd/internal/core/task_executor.go (66.7%)</option>
+
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+
+			</div>
+		</div>
+		<div id="content">
+
+		<pre class="file" id="file0" style="display: none">package core
+
+import (
+        "os"
+)
+
+// Config holds the application configuration
+type Config struct {
+        LogLevel         string // DEBUG, INFO, WARN, ERROR
+        OpenRouterAPIKey string // Required for LLM operations
+        DefaultModel     string // Default LLM model to use
+}
+
+// LoadConfig loads configuration from environment variables
+func LoadConfig() (*Config, error) <span class="cov8" title="1">{
+        logLevel := getEnvOrDefault("LOG_LEVEL", "info")
+
+        // DEBUG flag overrides log level
+        if os.Getenv("DEBUG") == "1" </span><span class="cov8" title="1">{
+                logLevel = "debug"
+        }</span>
+
+        <span class="cov8" title="1">cfg := &amp;Config{
+                LogLevel:         logLevel,
+                OpenRouterAPIKey: os.Getenv("OPENROUTER_API_KEY"),
+                DefaultModel:     getEnvOrDefault("DEFAULT_MODEL", "openrouter/anthropic/claude-3.5-sonnet"),
+        }
+
+        // Don't require API key for basic operations
+        // This will be validated when LLM operations are attempted
+        // if cfg.OpenRouterAPIKey == "" {
+        //         return nil, fmt.Errorf("OPENROUTER_API_KEY required")
+        // }
+
+        return cfg, nil</span>
+}
+
+// getEnvOrDefault returns the value of an environment variable or a default value
+func getEnvOrDefault(key, defaultValue string) string <span class="cov8" title="1">{
+        if value := os.Getenv(key); value != "" </span><span class="cov8" title="1">{
+                return value
+        }</span>
+        <span class="cov8" title="1">return defaultValue</span>
+}
+</pre>
+
+		<pre class="file" id="file1" style="display: none">package core
+
+import "fmt"
+
+// ValidationError represents a validation failure
+type ValidationError struct {
+        Field   string
+        Message string
+        Err     error
+}
+
+func (e *ValidationError) Error() string <span class="cov8" title="1">{
+        if e.Field != "" </span><span class="cov8" title="1">{
+                return fmt.Sprintf("%s: %s", e.Field, e.Message)
+        }</span>
+        <span class="cov8" title="1">return e.Message</span>
+}
+
+func (e *ValidationError) Unwrap() error <span class="cov8" title="1">{
+        return e.Err
+}</span>
+
+// LockError represents a file locking error
+type LockError struct {
+        Operation string
+        Message   string
+        Err       error
+}
+
+func (e *LockError) Error() string <span class="cov8" title="1">{
+        return fmt.Sprintf("lock %s: %s", e.Operation, e.Message)
+}</span>
+
+func (e *LockError) Unwrap() error <span class="cov8" title="1">{
+        return e.Err
+}</span>
+
+// LLMError represents an LLM operation error
+type LLMError struct {
+        Task    string
+        Message string
+        Err     error
+}
+
+func (e *LLMError) Error() string <span class="cov8" title="1">{
+        return fmt.Sprintf("LLM task %s: %s", e.Task, e.Message)
+}</span>
+
+func (e *LLMError) Unwrap() error <span class="cov8" title="1">{
+        return e.Err
+}</span>
+
+// NetworkError represents a network communication error
+type NetworkError struct {
+        Operation string
+        URL       string
+        Message   string
+        Err       error
+}
+
+func (e *NetworkError) Error() string <span class="cov8" title="1">{
+        if e.URL != "" </span><span class="cov8" title="1">{
+                return fmt.Sprintf("network %s to %s: %s", e.Operation, e.URL, e.Message)
+        }</span>
+        <span class="cov8" title="1">return fmt.Sprintf("network %s: %s", e.Operation, e.Message)</span>
+}
+
+func (e *NetworkError) Unwrap() error <span class="cov8" title="1">{
+        return e.Err
+}</span>
+</pre>
+
+		<pre class="file" id="file2" style="display: none">package core
+
+import (
+        "log/slog"
+        "os"
+)
+
+// Logger provides a structured logging interface for the application
+type Logger interface {
+        Info(msg string, fields ...any)
+        Warn(msg string, fields ...any)
+        Error(msg string, fields ...any)
+        Debug(msg string, fields ...any)
+}
+
+// slogLogger wraps the standard library slog.Logger
+type slogLogger struct {
+        logger *slog.Logger
+}
+
+// NewLogger creates a new logger with the specified log level
+func NewLogger(level string) Logger <span class="cov8" title="1">{
+        var slogLevel slog.Level
+        switch level </span>{
+        case "debug":<span class="cov8" title="1">
+                slogLevel = slog.LevelDebug</span>
+        case "info":<span class="cov8" title="1">
+                slogLevel = slog.LevelInfo</span>
+        case "warn":<span class="cov8" title="1">
+                slogLevel = slog.LevelWarn</span>
+        case "error":<span class="cov8" title="1">
+                slogLevel = slog.LevelError</span>
+        default:<span class="cov8" title="1">
+                slogLevel = slog.LevelInfo</span>
+        }
+
+        <span class="cov8" title="1">handler := slog.NewJSONHandler(os.Stderr, &amp;slog.HandlerOptions{
+                Level: slogLevel,
+        })
+        return &amp;slogLogger{logger: slog.New(handler)}</span>
+}
+
+func (l *slogLogger) Info(msg string, fields ...any) <span class="cov8" title="1">{
+        l.logger.Info(msg, fields...)
+}</span>
+
+func (l *slogLogger) Warn(msg string, fields ...any) <span class="cov8" title="1">{
+        l.logger.Warn(msg, fields...)
+}</span>
+
+func (l *slogLogger) Error(msg string, fields ...any) <span class="cov8" title="1">{
+        l.logger.Error(msg, fields...)
+}</span>
+
+func (l *slogLogger) Debug(msg string, fields ...any) <span class="cov8" title="1">{
+        l.logger.Debug(msg, fields...)
+}</span>
+</pre>
+
+		<pre class="file" id="file3" style="display: none">package core
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        "xdd/internal/llm"
+        "xdd/internal/llm/tasks"
+        "xdd/internal/repository"
+        "xdd/pkg/schema"
+)
+
+// Orchestrator executes the 5-task LLM pipeline
+type Orchestrator struct {
+        executor TaskExecutor
+        repo     *repository.Repository
+}
+
+// NewOrchestrator creates a new orchestrator with a TaskExecutor
+func NewOrchestrator(executor TaskExecutor, repo *repository.Repository) *Orchestrator <span class="cov8" title="1">{
+        return &amp;Orchestrator{
+                executor: executor,
+                repo:     repo,
+        }
+}</span>
+
+// NewOrchestratorWithLLMClient creates an orchestrator with a real LLM client (legacy constructor)
+func NewOrchestratorWithLLMClient(llmClient *llm.Client, repo *repository.Repository) *Orchestrator <span class="cov8" title="1">{
+        return &amp;Orchestrator{
+                executor: NewRealTaskExecutor(llmClient),
+                repo:     repo,
+        }
+}</span>
+
+// ProcessPrompt executes the full LLM pipeline for a user prompt
+func (o *Orchestrator) ProcessPrompt(
+        ctx context.Context,
+        state *SessionState,
+        prompt string,
+) (*SessionState, error) <span class="cov8" title="1">{
+        newState := state.Clone()
+
+        // Load current specification
+        spec, err := o.repo.ReadSpecification()
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("load specification: %w", err)
+        }</span>
+
+        // 1. Metadata Task
+        <span class="cov8" title="1">metadataInput := &amp;tasks.MetadataInput{
+                Existing:      &amp;spec.Metadata,
+                UpdateRequest: prompt,
+                IsNewProject:  spec.Metadata.Name == "",
+        }
+
+        metadataOutput, err := o.executor.ExecuteMetadata(ctx, metadataInput)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("metadata task: %w", err)
+        }</span>
+
+        // 2. Requirements Delta Task
+        <span class="cov8" title="1">deltaInput := &amp;tasks.RequirementsDeltaInput{
+                ExistingRequirements: spec.Requirements,
+                ExistingCategories:   spec.Categories,
+                UpdateRequest:        prompt,
+        }
+
+        deltaOutput, err := o.executor.ExecuteRequirementsDelta(ctx, deltaInput)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("requirements delta task: %w", err)
+        }</span>
+
+        // Check for ambiguous modifications
+        <span class="cov8" title="1">if len(deltaOutput.AmbiguousModifications) &gt; 0 </span><span class="cov8" title="1">{
+                newState.AwaitingFeedback = true
+                newState.AddMessage("assistant", deltaOutput.AmbiguousModifications[0].Clarification)
+                return newState, nil
+        }</span>
+
+        // 3. Categorization Task
+        <span class="cov8" title="1">allBriefs := []string{}
+        for _, req := range spec.Requirements </span><span class="cov8" title="1">{
+                allBriefs = append(allBriefs, req.Description)
+        }</span>
+        <span class="cov8" title="1">for _, add := range deltaOutput.ToAdd </span><span class="cov8" title="1">{
+                allBriefs = append(allBriefs, add.BriefDescription)
+        }</span>
+
+        <span class="cov8" title="1">catInput := &amp;tasks.CategorizationInput{
+                ProjectName:          metadataOutput.Name,
+                ProjectDescription:   metadataOutput.Description,
+                AllRequirementBriefs: allBriefs,
+        }
+
+        catOutput, err := o.executor.ExecuteCategorization(ctx, catInput)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("categorization task: %w", err)
+        }</span>
+
+        // 4. Requirement Generation (sequential for simplicity)
+        <span class="cov8" title="1">newRequirements := []schema.Requirement{}
+        for _, add := range deltaOutput.ToAdd </span><span class="cov8" title="1">{
+                reqInput := &amp;tasks.RequirementGenInput{
+                        Category:          add.Category,
+                        EARSType:          add.EARSType,
+                        BriefDescription:  add.BriefDescription,
+                        EstimatedPriority: add.EstimatedPriority,
+                        Context: tasks.RequirementGenContext{
+                                ProjectName:          metadataOutput.Name,
+                                ProjectDescription:   metadataOutput.Description,
+                                ExistingRequirements: spec.Requirements,
+                                UpdateRequest:        prompt,
+                        },
+                }
+
+                reqOutput, err := o.executor.ExecuteRequirementGen(ctx, reqInput)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("requirement generation: %w", err)
+                }</span>
+
+                // Convert AcceptanceCriterionJSON to AcceptanceCriterion
+                <span class="cov8" title="1">criteria := make([]schema.AcceptanceCriterion, 0, len(reqOutput.AcceptanceCriteria))
+                for _, acJSON := range reqOutput.AcceptanceCriteria </span><span class="cov8" title="1">{
+                        if acJSON.Type == "behavioral" </span><span class="cov8" title="1">{
+                                acID, _ := schema.NewAcceptanceCriterionID()
+                                criteria = append(criteria, &amp;schema.BehavioralCriterion{
+                                        ID:        acID,
+                                        Type:      "behavioral",
+                                        Given:     acJSON.Given,
+                                        When:      acJSON.When,
+                                        Then:      acJSON.Then,
+                                        CreatedAt: time.Now(),
+                                })
+                        }</span> else<span class="cov8" title="1"> if acJSON.Type == "assertion" </span><span class="cov8" title="1">{
+                                acID, _ := schema.NewAcceptanceCriterionID()
+                                criteria = append(criteria, &amp;schema.AssertionCriterion{
+                                        ID:        acID,
+                                        Type:      "assertion",
+                                        Statement: acJSON.Statement,
+                                        CreatedAt: time.Now(),
+                                })
+                        }</span>
+                }
+
+                <span class="cov8" title="1">reqID, _ := schema.NewRequirementID(add.Category)
+                req := schema.Requirement{
+                        ID:                 reqID,
+                        Type:               schema.EARSType(add.EARSType),
+                        Category:           add.Category,
+                        Description:        reqOutput.Description,
+                        Rationale:          reqOutput.Rationale,
+                        AcceptanceCriteria: criteria,
+                        Priority:           schema.Priority(reqOutput.Priority),
+                        CreatedAt:          time.Now(),
+                }
+
+                newRequirements = append(newRequirements, req)</span>
+        }
+
+        // 5. Version Bump Task
+        <span class="cov8" title="1">versionInput := &amp;tasks.VersionBumpInput{
+                CurrentVersion: spec.Metadata.Version,
+                Changes: tasks.VersionChanges{
+                        RequirementsAdded:   len(deltaOutput.ToAdd),
+                        RequirementsRemoved: len(deltaOutput.ToRemove),
+                        MetadataChanged:     metadataOutput.Changed.Name || metadataOutput.Changed.Description,
+                },
+                ChangeDescriptions: buildChangeDescriptions(metadataOutput, deltaOutput, newRequirements),
+        }
+
+        versionOutput, err := o.executor.ExecuteVersionBump(ctx, versionInput)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("version bump task: %w", err)
+        }</span>
+
+        // Build changelog events
+        <span class="cov8" title="1">newState.PendingChangelog = buildChangelog(
+                spec,
+                metadataOutput,
+                deltaOutput,
+                catOutput,
+                newRequirements,
+                versionOutput,
+        )
+
+        newState.AwaitingFeedback = false
+        return newState, nil</span>
+}
+
+// buildChangeDescriptions creates human-readable change summaries
+func buildChangeDescriptions(
+        metadata *tasks.MetadataOutput,
+        delta *tasks.RequirementsDeltaOutput,
+        requirements []schema.Requirement,
+) []string <span class="cov8" title="1">{
+        descriptions := []string{}
+
+        if metadata.Changed.Name </span><span class="cov8" title="1">{
+                descriptions = append(descriptions, fmt.Sprintf("Project name: %s", metadata.Name))
+        }</span>
+        <span class="cov8" title="1">if metadata.Changed.Description </span><span class="cov8" title="1">{
+                descriptions = append(descriptions, "Project description updated")
+        }</span>
+
+        <span class="cov8" title="1">for _, req := range requirements </span><span class="cov8" title="1">{
+                descriptions = append(descriptions, fmt.Sprintf("Added: %s", req.Description))
+        }</span>
+
+        <span class="cov8" title="1">for _, rem := range delta.ToRemove </span><span class="cov8" title="1">{
+                descriptions = append(descriptions, fmt.Sprintf("Removed: %s", rem.ID))
+        }</span>
+
+        <span class="cov8" title="1">return descriptions</span>
+}
+
+// buildChangelog constructs changelog events from task outputs
+func buildChangelog(
+        spec *schema.Specification,
+        metadata *tasks.MetadataOutput,
+        delta *tasks.RequirementsDeltaOutput,
+        categorization *tasks.CategorizationOutput,
+        newRequirements []schema.Requirement,
+        version *tasks.VersionBumpOutput,
+) []schema.ChangelogEvent <span class="cov8" title="1">{
+        events := []schema.ChangelogEvent{}
+
+        // Metadata update
+        if metadata.Changed.Name || metadata.Changed.Description </span><span class="cov8" title="1">{
+                evtID, _ := schema.NewEventID()
+                events = append(events, &amp;schema.ProjectMetadataUpdated{
+                        EventID_:    evtID,
+                        OldMetadata: spec.Metadata,
+                        NewMetadata: schema.ProjectMetadata{
+                                Name:        metadata.Name,
+                                Description: metadata.Description,
+                                Version:     version.NewVersion,
+                                CreatedAt:   spec.Metadata.CreatedAt,
+                                UpdatedAt:   time.Now(),
+                        },
+                        Timestamp_: time.Now(),
+                })
+        }</span>
+
+        // Category changes (simplified - just add new categories)
+        <span class="cov8" title="1">existingCats := make(map[string]bool)
+        for _, cat := range spec.Categories </span><span class="cov8" title="1">{
+                existingCats[cat] = true
+        }</span>
+
+        <span class="cov8" title="1">for _, cat := range categorization.Categories </span><span class="cov8" title="1">{
+                if !existingCats[cat.Name] </span><span class="cov8" title="1">{
+                        evtID, _ := schema.NewEventID()
+                        events = append(events, &amp;schema.CategoryAdded{
+                                EventID_:   evtID,
+                                Name:       cat.Name,
+                                Timestamp_: time.Now(),
+                        })
+                }</span>
+        }
+
+        // Requirement deletions
+        <span class="cov8" title="1">for _, rem := range delta.ToRemove </span><span class="cov8" title="1">{
+                // Find requirement to snapshot
+                var req schema.Requirement
+                for _, r := range spec.Requirements </span><span class="cov8" title="1">{
+                        if r.ID == rem.ID </span><span class="cov8" title="1">{
+                                req = r
+                                break</span>
+                        }
+                }
+
+                <span class="cov8" title="1">evtID, _ := schema.NewEventID()
+                events = append(events, &amp;schema.RequirementDeleted{
+                        EventID_:      evtID,
+                        RequirementID: rem.ID,
+                        Requirement:   req,
+                        Timestamp_:    time.Now(),
+                })</span>
+        }
+
+        // Requirement additions
+        <span class="cov8" title="1">for _, req := range newRequirements </span><span class="cov8" title="1">{
+                evtID, _ := schema.NewEventID()
+                events = append(events, &amp;schema.RequirementAdded{
+                        EventID_:    evtID,
+                        Requirement: req,
+                        Timestamp_:  time.Now(),
+                })
+        }</span>
+
+        // Version bump
+        <span class="cov8" title="1">evtID, _ := schema.NewEventID()
+        events = append(events, &amp;schema.VersionBumped{
+                EventID_:    evtID,
+                OldVersion:  spec.Metadata.Version,
+                NewVersion:  version.NewVersion,
+                BumpType:    version.BumpType,
+                Reasoning:   version.Reasoning,
+                Timestamp_:  time.Now(),
+        })
+
+        return events</span>
+}
+</pre>
+
+		<pre class="file" id="file4" style="display: none">package core
+
+import (
+        "xdd/pkg/schema"
+)
+
+// SessionState represents the in-memory session state
+type SessionState struct {
+        Messages         []Message
+        PendingChangelog []schema.ChangelogEvent
+        Committed        bool
+        AwaitingFeedback bool
+}
+
+// Message represents a conversation message
+type Message struct {
+        Role    string // "user", "assistant", "system"
+        Content string
+}
+
+// NewSessionState creates a new session state
+func NewSessionState() *SessionState <span class="cov8" title="1">{
+        return &amp;SessionState{
+                Messages:         make([]Message, 0),
+                PendingChangelog: make([]schema.ChangelogEvent, 0),
+        }
+}</span>
+
+// AddMessage adds a message to the conversation history
+func (s *SessionState) AddMessage(role, content string) <span class="cov8" title="1">{
+        s.Messages = append(s.Messages, Message{Role: role, Content: content})
+}</span>
+
+// Clone creates a deep copy of the session state
+func (s *SessionState) Clone() *SessionState <span class="cov8" title="1">{
+        clone := &amp;SessionState{
+                Messages:         make([]Message, len(s.Messages)),
+                PendingChangelog: make([]schema.ChangelogEvent, len(s.PendingChangelog)),
+                Committed:        s.Committed,
+                AwaitingFeedback: s.AwaitingFeedback,
+        }
+
+        copy(clone.Messages, s.Messages)
+        copy(clone.PendingChangelog, s.PendingChangelog)
+
+        return clone
+}</span>
+</pre>
+
+		<pre class="file" id="file5" style="display: none">package core
+
+import (
+        "bufio"
+        "context"
+        "fmt"
+        "os"
+        "strings"
+
+        "xdd/internal/llm"
+        "xdd/internal/repository"
+        "xdd/pkg/schema"
+)
+
+// CLISession manages an interactive CLI session
+type CLISession struct {
+        State        *SessionState
+        Orchestrator *Orchestrator
+        Lock         *repository.FileLock
+        Repo         *repository.Repository
+}
+
+// NewCLISession creates a new CLI session with an LLM client
+func NewCLISession(llmClient *llm.Client, repo *repository.Repository) *CLISession <span class="cov8" title="1">{
+        return &amp;CLISession{
+                State:        NewSessionState(),
+                Orchestrator: NewOrchestratorWithLLMClient(llmClient, repo),
+                Lock:         repository.NewFileLock(".xdd/.lock", "cli"),
+                Repo:         repo,
+        }
+}</span>
+
+// NewCLISessionWithExecutor creates a new CLI session with a TaskExecutor (for testing)
+func NewCLISessionWithExecutor(executor TaskExecutor, repo *repository.Repository) *CLISession <span class="cov8" title="1">{
+        return &amp;CLISession{
+                State:        NewSessionState(),
+                Orchestrator: NewOrchestrator(executor, repo),
+                Lock:         repository.NewFileLock(".xdd/.lock", "cli"),
+                Repo:         repo,
+        }
+}</span>
+
+// Run executes the interactive session loop
+func (s *CLISession) Run(initialPrompt string) error <span class="cov8" title="1">{
+        // Acquire lock
+        fmt.Println("🔒 Acquiring lock...")
+        if err := s.Lock.Acquire(); err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("failed to acquire lock: %w", err)
+        }</span>
+        <span class="cov8" title="1">defer s.Lock.Release()
+        fmt.Println("✅ Lock acquired")
+
+        ctx := context.Background()
+        prompt := initialPrompt
+
+        // Interactive loop
+        for !s.State.Committed </span><span class="cov8" title="1">{
+                fmt.Println("🤖 Analyzing request...")
+
+                newState, err := s.Orchestrator.ProcessPrompt(ctx, s.State, prompt)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("orchestration failed: %w", err)
+                }</span>
+                <span class="cov8" title="1">s.State = newState
+
+                // Check if awaiting feedback
+                if s.State.AwaitingFeedback </span><span class="cov0" title="0">{
+                        lastMsg := s.State.Messages[len(s.State.Messages)-1]
+                        fmt.Printf("\n📝 %s\n&gt; ", lastMsg.Content)
+                        reader := bufio.NewReader(os.Stdin)
+                        feedback, _ := reader.ReadString('\n')
+                        prompt = strings.TrimSpace(feedback)
+                        s.State.AwaitingFeedback = false
+                        continue</span>
+                }
+
+                // Show changelog preview
+                <span class="cov8" title="1">fmt.Println("\n📊 Proposed Changes:")
+                displayChangelog(s.State.PendingChangelog)
+
+                // Confirm
+                fmt.Print("\nAre you satisfied? [yes/no/feedback]: ")
+                reader := bufio.NewReader(os.Stdin)
+                response, _ := reader.ReadString('\n')
+                response = strings.TrimSpace(response)
+
+                switch strings.ToLower(response) </span>{
+                case "yes", "y":<span class="cov8" title="1">
+                        // Commit
+                        if err := s.commit(); err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("commit failed: %w", err)
+                        }</span>
+                        <span class="cov8" title="1">s.State.Committed = true</span>
+
+                case "no", "n":<span class="cov8" title="1">
+                        fmt.Println("❌ Changes discarded.")
+                        return nil</span>
+
+                default:<span class="cov0" title="0">
+                        // Treat as feedback
+                        fmt.Println()
+                        prompt = response</span>
+                }
+        }
+
+        <span class="cov8" title="1">fmt.Println("\n🔓 Releasing lock")
+        fmt.Println("\n✨ Specification complete!")
+        return nil</span>
+}
+
+// commit writes changes to disk
+func (s *CLISession) commit() error <span class="cov8" title="1">{
+        fmt.Println("\n✅ Committing changes...")
+
+        // Load current spec to merge changes
+        spec, err := s.Repo.ReadSpecification()
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("load spec: %w", err)
+        }</span>
+
+        // Apply changes from changelog
+        <span class="cov8" title="1">for _, event := range s.State.PendingChangelog </span><span class="cov8" title="1">{
+                switch e := event.(type) </span>{
+                case *schema.RequirementAdded:<span class="cov8" title="1">
+                        spec.Requirements = append(spec.Requirements, e.Requirement)</span>
+
+                case *schema.RequirementDeleted:<span class="cov0" title="0">
+                        // Remove requirement
+                        filtered := []schema.Requirement{}
+                        for _, req := range spec.Requirements </span><span class="cov0" title="0">{
+                                if req.ID != e.RequirementID </span><span class="cov0" title="0">{
+                                        filtered = append(filtered, req)
+                                }</span>
+                        }
+                        <span class="cov0" title="0">spec.Requirements = filtered</span>
+
+                case *schema.ProjectMetadataUpdated:<span class="cov8" title="1">
+                        spec.Metadata = e.NewMetadata</span>
+
+                case *schema.CategoryAdded:<span class="cov8" title="1">
+                        spec.Categories = append(spec.Categories, e.Name)</span>
+
+                case *schema.CategoryDeleted:<span class="cov0" title="0">
+                        // Remove category
+                        filtered := []string{}
+                        for _, cat := range spec.Categories </span><span class="cov0" title="0">{
+                                if cat != e.Name </span><span class="cov0" title="0">{
+                                        filtered = append(filtered, cat)
+                                }</span>
+                        }
+                        <span class="cov0" title="0">spec.Categories = filtered</span>
+                }
+        }
+
+        // Write specification and changelog atomically
+        <span class="cov8" title="1">if err := s.Repo.WriteSpecificationAndChangelog(spec, s.State.PendingChangelog); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("write specification and changelog: %w", err)
+        }</span>
+        <span class="cov8" title="1">fmt.Println("   Writing specification.yaml")
+        fmt.Println("   Writing changelog.yaml")
+
+        return nil</span>
+}
+
+// displayChangelog formats and prints changelog events
+func displayChangelog(events []schema.ChangelogEvent) <span class="cov8" title="1">{
+        for _, event := range events </span><span class="cov8" title="1">{
+                switch e := event.(type) </span>{
+                case *schema.RequirementAdded:<span class="cov8" title="1">
+                        fmt.Printf("  [+] %s: %s\n", e.Requirement.ID, truncate(e.Requirement.Description, 80))
+                        fmt.Printf("      Category: %s, Priority: %s\n", e.Requirement.Category, e.Requirement.Priority)
+                        fmt.Printf("      Acceptance Criteria: %d\n", len(e.Requirement.AcceptanceCriteria))</span>
+
+                case *schema.RequirementDeleted:<span class="cov8" title="1">
+                        fmt.Printf("  [-] %s: %s\n", e.RequirementID, truncate(e.Requirement.Description, 80))</span>
+
+                case *schema.ProjectMetadataUpdated:<span class="cov8" title="1">
+                        if e.OldMetadata.Name != e.NewMetadata.Name </span><span class="cov8" title="1">{
+                                fmt.Printf("  [*] Project Name: %s → %s\n", e.OldMetadata.Name, e.NewMetadata.Name)
+                        }</span>
+                        <span class="cov8" title="1">if e.OldMetadata.Description != e.NewMetadata.Description </span><span class="cov8" title="1">{
+                                fmt.Printf("  [*] Description updated\n")
+                        }</span>
+
+                case *schema.VersionBumped:<span class="cov8" title="1">
+                        fmt.Printf("  [V] Version: %s → %s (%s)\n", e.OldVersion, e.NewVersion, e.BumpType)
+                        fmt.Printf("      Reason: %s\n", truncate(e.Reasoning, 80))</span>
+
+                case *schema.CategoryAdded:<span class="cov8" title="1">
+                        fmt.Printf("  [+] Category: %s\n", e.Name)</span>
+
+                case *schema.CategoryDeleted:<span class="cov8" title="1">
+                        fmt.Printf("  [-] Category: %s\n", e.Name)</span>
+                }
+        }
+}
+
+// truncate truncates a string to max length
+func truncate(s string, max int) string <span class="cov8" title="1">{
+        if len(s) &lt;= max </span><span class="cov8" title="1">{
+                return s
+        }</span>
+        <span class="cov8" title="1">return s[:max-3] + "..."</span>
+}
+</pre>
+
+		<pre class="file" id="file6" style="display: none">package core
+
+import (
+        "context"
+
+        "xdd/internal/llm/tasks"
+)
+
+// TaskExecutor interface abstracts LLM task execution for testability
+type TaskExecutor interface {
+        ExecuteMetadata(ctx context.Context, input *tasks.MetadataInput) (*tasks.MetadataOutput, error)
+        ExecuteRequirementsDelta(ctx context.Context, input *tasks.RequirementsDeltaInput) (*tasks.RequirementsDeltaOutput, error)
+        ExecuteCategorization(ctx context.Context, input *tasks.CategorizationInput) (*tasks.CategorizationOutput, error)
+        ExecuteRequirementGen(ctx context.Context, input *tasks.RequirementGenInput) (*tasks.RequirementGenOutput, error)
+        ExecuteVersionBump(ctx context.Context, input *tasks.VersionBumpInput) (*tasks.VersionBumpOutput, error)
+}
+
+// RealTaskExecutor implements TaskExecutor using real LLM calls
+type RealTaskExecutor struct {
+        client interface{} // Will be *llm.Client once we import it
+}
+
+// NewRealTaskExecutor creates a TaskExecutor that calls real LLM APIs
+func NewRealTaskExecutor(client interface{}) TaskExecutor <span class="cov8" title="1">{
+        return &amp;RealTaskExecutor{client: client}
+}</span>
+
+// Execute methods delegate to actual LLM task functions
+func (e *RealTaskExecutor) ExecuteMetadata(ctx context.Context, input *tasks.MetadataInput) (*tasks.MetadataOutput, error) <span class="cov0" title="0">{
+        // For now, return mock data - will be replaced with real LLM call
+        return &amp;tasks.MetadataOutput{
+                Name:        "MockProject",
+                Description: "Mock description",
+                Changed: struct {
+                        Name        bool `json:"name"`
+                        Description bool `json:"description"`
+                }{Name: true, Description: true},
+                Reasoning: "Mock reasoning",
+        }, nil
+}</span>
+
+func (e *RealTaskExecutor) ExecuteRequirementsDelta(ctx context.Context, input *tasks.RequirementsDeltaInput) (*tasks.RequirementsDeltaOutput, error) <span class="cov0" title="0">{
+        return &amp;tasks.RequirementsDeltaOutput{
+                ToRemove:               []struct{ ID string `json:"id"`; Reasoning string `json:"reasoning"` }{},
+                ToAdd:                  []struct{ Category string `json:"category"`; BriefDescription string `json:"brief_description"`; EARSType string `json:"ears_type"`; EstimatedPriority string `json:"estimated_priority"`; Reasoning string `json:"reasoning"` }{},
+                AmbiguousModifications: []struct{ PossibleTargets []string `json:"possible_targets"`; Clarification string `json:"clarification"` }{},
+        }, nil
+}</span>
+
+func (e *RealTaskExecutor) ExecuteCategorization(ctx context.Context, input *tasks.CategorizationInput) (*tasks.CategorizationOutput, error) <span class="cov0" title="0">{
+        return &amp;tasks.CategorizationOutput{
+                Categories: []struct{ Name string `json:"name"`; Description string `json:"description"`; Count int `json:"count"` }{
+                        {Name: "MOCK", Description: "Mock category", Count: 1},
+                },
+                RequirementMapping: map[string]string{},
+                Reasoning:          "Mock reasoning",
+        }, nil
+}</span>
+
+func (e *RealTaskExecutor) ExecuteRequirementGen(ctx context.Context, input *tasks.RequirementGenInput) (*tasks.RequirementGenOutput, error) <span class="cov0" title="0">{
+        return &amp;tasks.RequirementGenOutput{
+                Description: "Mock requirement description",
+                Rationale:   "Mock rationale",
+                AcceptanceCriteria: []tasks.AcceptanceCriterionJSON{
+                        {
+                                Type:      "behavioral",
+                                Given:     "Mock precondition",
+                                When:      "Mock trigger",
+                                Then:      "Mock outcome",
+                                Statement: "",
+                        },
+                },
+                Priority: "medium",
+        }, nil
+}</span>
+
+func (e *RealTaskExecutor) ExecuteVersionBump(ctx context.Context, input *tasks.VersionBumpInput) (*tasks.VersionBumpOutput, error) <span class="cov0" title="0">{
+        return &amp;tasks.VersionBumpOutput{
+                NewVersion: "0.1.0",
+                BumpType:   "minor",
+                Reasoning:  "Mock version bump",
+        }, nil
+}</span>
+
+// MockTaskExecutor implements TaskExecutor for testing with canned responses
+type MockTaskExecutor struct {
+        MetadataOutput          *tasks.MetadataOutput
+        RequirementsDeltaOutput *tasks.RequirementsDeltaOutput
+        CategorizationOutput    *tasks.CategorizationOutput
+        RequirementGenOutput    *tasks.RequirementGenOutput
+        VersionBumpOutput       *tasks.VersionBumpOutput
+
+        MetadataError          error
+        RequirementsDeltaError error
+        CategorizationError    error
+        RequirementGenError    error
+        VersionBumpError       error
+
+        MetadataCalls          int
+        RequirementsDeltaCalls int
+        CategorizationCalls    int
+        RequirementGenCalls    int
+        VersionBumpCalls       int
+}
+
+// NewMockTaskExecutor creates a mock executor with default successful responses
+func NewMockTaskExecutor() *MockTaskExecutor <span class="cov8" title="1">{
+        return &amp;MockTaskExecutor{
+                MetadataOutput: &amp;tasks.MetadataOutput{
+                        Name:        "TestProject",
+                        Description: "A test project for integration testing",
+                        Changed: struct {
+                                Name        bool `json:"name"`
+                                Description bool `json:"description"`
+                        }{Name: true, Description: true},
+                        Reasoning: "New project initialization",
+                },
+                RequirementsDeltaOutput: &amp;tasks.RequirementsDeltaOutput{
+                        ToRemove: []struct {
+                                ID        string `json:"id"`
+                                Reasoning string `json:"reasoning"`
+                        }{},
+                        ToAdd: []struct {
+                                Category          string `json:"category"`
+                                BriefDescription  string `json:"brief_description"`
+                                EARSType          string `json:"ears_type"`
+                                EstimatedPriority string `json:"estimated_priority"`
+                                Reasoning         string `json:"reasoning"`
+                        }{
+                                {
+                                        Category:          "AUTH",
+                                        BriefDescription:  "User authentication requirement",
+                                        EARSType:          "event",
+                                        EstimatedPriority: "high",
+                                        Reasoning:         "Core security feature",
+                                },
+                                {
+                                        Category:          "TASKS",
+                                        BriefDescription:  "Task management requirement",
+                                        EARSType:          "event",
+                                        EstimatedPriority: "high",
+                                        Reasoning:         "Primary application feature",
+                                },
+                        },
+                        AmbiguousModifications: []struct {
+                                PossibleTargets []string `json:"possible_targets"`
+                                Clarification   string   `json:"clarification"`
+                        }{},
+                },
+                CategorizationOutput: &amp;tasks.CategorizationOutput{
+                        Categories: []struct {
+                                Name        string `json:"name"`
+                                Description string `json:"description"`
+                                Count       int    `json:"count"`
+                        }{
+                                {Name: "AUTH", Description: "Authentication and authorization", Count: 1},
+                                {Name: "TASKS", Description: "Task management features", Count: 1},
+                        },
+                        RequirementMapping: map[string]string{
+                                "User authentication requirement": "AUTH",
+                                "Task management requirement":     "TASKS",
+                        },
+                        Reasoning: "Categorized by functional domain",
+                },
+                RequirementGenOutput: &amp;tasks.RequirementGenOutput{
+                        Description: "When user initiates login, the system shall authenticate credentials",
+                        Rationale:   "Users need secure access to the application",
+                        AcceptanceCriteria: []tasks.AcceptanceCriterionJSON{
+                                {
+                                        Type:  "behavioral",
+                                        Given: "User is on login page",
+                                        When:  "User submits valid credentials",
+                                        Then:  "System authenticates and redirects to dashboard",
+                                },
+                                {
+                                        Type:      "assertion",
+                                        Statement: "Authentication must complete within 2 seconds",
+                                },
+                        },
+                        Priority: "high",
+                },
+                VersionBumpOutput: &amp;tasks.VersionBumpOutput{
+                        NewVersion: "0.1.0",
+                        BumpType:   "minor",
+                        Reasoning:  "Initial version with core features",
+                },
+        }
+}</span>
+
+func (m *MockTaskExecutor) ExecuteMetadata(ctx context.Context, input *tasks.MetadataInput) (*tasks.MetadataOutput, error) <span class="cov8" title="1">{
+        m.MetadataCalls++
+        if m.MetadataError != nil </span><span class="cov8" title="1">{
+                return nil, m.MetadataError
+        }</span>
+        <span class="cov8" title="1">return m.MetadataOutput, nil</span>
+}
+
+func (m *MockTaskExecutor) ExecuteRequirementsDelta(ctx context.Context, input *tasks.RequirementsDeltaInput) (*tasks.RequirementsDeltaOutput, error) <span class="cov8" title="1">{
+        m.RequirementsDeltaCalls++
+        if m.RequirementsDeltaError != nil </span><span class="cov0" title="0">{
+                return nil, m.RequirementsDeltaError
+        }</span>
+        <span class="cov8" title="1">return m.RequirementsDeltaOutput, nil</span>
+}
+
+func (m *MockTaskExecutor) ExecuteCategorization(ctx context.Context, input *tasks.CategorizationInput) (*tasks.CategorizationOutput, error) <span class="cov8" title="1">{
+        m.CategorizationCalls++
+        if m.CategorizationError != nil </span><span class="cov0" title="0">{
+                return nil, m.CategorizationError
+        }</span>
+        <span class="cov8" title="1">return m.CategorizationOutput, nil</span>
+}
+
+func (m *MockTaskExecutor) ExecuteRequirementGen(ctx context.Context, input *tasks.RequirementGenInput) (*tasks.RequirementGenOutput, error) <span class="cov8" title="1">{
+        m.RequirementGenCalls++
+        if m.RequirementGenError != nil </span><span class="cov0" title="0">{
+                return nil, m.RequirementGenError
+        }</span>
+        <span class="cov8" title="1">return m.RequirementGenOutput, nil</span>
+}
+
+func (m *MockTaskExecutor) ExecuteVersionBump(ctx context.Context, input *tasks.VersionBumpInput) (*tasks.VersionBumpOutput, error) <span class="cov8" title="1">{
+        m.VersionBumpCalls++
+        if m.VersionBumpError != nil </span><span class="cov0" title="0">{
+                return nil, m.VersionBumpError
+        }</span>
+        <span class="cov8" title="1">return m.VersionBumpOutput, nil</span>
+}
+</pre>
+
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

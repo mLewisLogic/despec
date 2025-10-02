@@ -2,49 +2,54 @@
 
 **Specification-Driven Development**
 
-Transform natural language requirements into structured, validated specifications.
+Foundation layer complete. CLI in development.
 
 ## What is xdd?
 
 xdd helps you capture and manage software requirements using a three-stage pipeline:
 
-1. **Specs Stage** (Current): Natural language → Structured requirements in EARS format
-2. **Design Stage** (Future): Requirements → Component architecture and technical decisions
-3. **Tasks Stage** (Future): Design → Prioritized implementation backlog
+1. **Specs Stage** (In Development): Natural language → Structured requirements in EARS format
+2. **Design Stage** (Planned): Requirements → Component architecture and technical decisions
+3. **Tasks Stage** (Planned): Design → Prioritized implementation backlog
 
-**Current Focus**: Stage 1 - Specifications. Transform your ideas into validated, traceable requirements.
+**Current Goal**: Build a working Stage 1 proof of concept. See **[TODO.md](./TODO.md)** for the roadmap.
 
-## Quick Start
+## Current Status
+
+**What's Built:**
+- ✅ Foundation utilities (AtomicWriter, FileLock, InputValidator, ErrorHandler)
+- ✅ Zod schemas for all specification entities
+- ✅ ID generation with collision resistance
+- ✅ Test infrastructure (171 passing unit tests)
+
+**Known Issues:**
+- ⚠️ Foundation utilities have critical race conditions (see TODO.md)
+- ⚠️ Integration tests need fixes
+
+**What's Not Built Yet:**
+- ❌ CLI tool (`xdd` command doesn't exist)
+- ❌ YAML read/write operations
+- ❌ Changelog & event sourcing
+- ❌ Claude integration
+
+## For Developers
 
 ### Installation
 
 ```bash
-# Clone and install
+# Clone and install dependencies
 git clone https://github.com/yourusername/xdd.git
 cd xdd
 bun install
+
+# Install development tools
+mise install
 
 # Set up git hooks
 bun x lefthook install
 ```
 
-### Usage (Stage 1 - Specs)
-
-```bash
-# Create requirements from natural language (coming soon)
-xdd specify "Build a web application with OAuth authentication and PostgreSQL storage"
-
-# Add more requirements
-xdd specify "Add real-time WebSocket notifications"
-
-# Validate your specifications
-xdd validate
-
-# Query existing requirements
-xdd query "list AUTH requirements"
-```
-
-### For Developers
+### Development Workflow
 
 ```bash
 # Run tests
@@ -61,25 +66,103 @@ mise tasks
 
 See **[TASKS.md](./TASKS.md)** for complete task reference.
 
-## How It Works
+### Secrets Management
 
-### Stage 1: Specifications
+xdd uses [SOPS](https://github.com/mozilla/sops) with [Age](https://github.com/FiloSottile/age) encryption for secure secrets management.
 
-xdd transforms your natural language requirements into structured YAML files that follow the EARS (Easy Approach to Requirements Syntax) format.
+**First-time setup**:
+
+```bash
+# Initialize secrets (generates key and encrypted file)
+mise run setup
+```
+
+**Managing secrets**:
+
+```bash
+# Set a secret interactively
+mise run secrets:set OPENROUTER_API_KEY
+
+# Edit secrets file directly
+mise run secrets:edit
+
+# Get a specific secret
+mise run secrets:get OPENROUTER_API_KEY
+
+# List all secret keys (not values)
+mise run secrets:list
+```
+
+**Environment switching**:
+
+- `dev`: Uses `~/.keys/xdd/dev.age.key` and `secrets/dev.enc.yaml`
+- `ci`: Uses plain text test values from `.mise.ci.toml`
+
+Age keys are stored locally in `~/.keys/xdd/` and are **never** committed to git.
+Encrypted secrets files (`*.enc.yaml`) **are** committed - they're safe when encrypted.
+
+### Recording LLM Fixtures
+
+For testing LLM integration, we use recorded fixtures to avoid API costs and ensure deterministic tests.
+
+**Record fixtures (one-time setup)**:
+
+```bash
+cd backend
+
+# Set your OpenRouter API key
+export OPENROUTER_API_KEY="sk-or-v1-your-key-here"
+
+# Record all fixtures (~$0.50, ~30 seconds)
+go run scripts/record-fixtures.go
+
+# Verify fixtures
+go run scripts/verify-fixtures.go
+```
+
+**Run tests with fixtures**:
+
+```bash
+# Tests automatically use fixtures (no API key needed)
+go test ./internal/llm/tasks/...
+```
+
+See **[docs/how-to-record-fixtures.md](./docs/how-to-record-fixtures.md)** for detailed instructions.
+
+## Planned Functionality
+
+### Stage 1: Specifications (Design Specification)
+
+Once complete, xdd will transform natural language requirements into structured YAML files following the EARS format.
+
+**Planned CLI Commands:**
+
+```bash
+# Initialize a new project
+xdd init
+
+# Create requirements from natural language
+xdd specify "Users should be able to log in with OAuth"
+
+# Validate specifications
+xdd validate
+
+# Query requirements
+xdd query "list AUTH requirements"
+```
+
+### Planned Data Model
 
 **Input**: "Users should be able to log in with OAuth"
 
 **Output**: Structured requirement with:
-
-- Unique ID (collision-resistant)
+- Unique ID (collision-resistant nanoid)
 - EARS-formatted description
 - Acceptance criteria (behavioral or assertion)
 - Category and priority
 - Complete audit trail
 
-### File Structure
-
-All specifications are stored in `.xdd/01-specs/`:
+### Planned File Structure
 
 ```text
 .xdd/01-specs/
@@ -91,93 +174,35 @@ All specifications are stored in `.xdd/01-specs/`:
 
 ### EARS Format
 
-Requirements follow EARS patterns:
-
+Requirements will follow EARS patterns:
 - **Ubiquitous**: "The system shall always maintain session state"
 - **Event-Driven**: "When user clicks login, the system shall redirect to OAuth provider"
 - **State-Driven**: "While user is authenticated, the system shall display profile menu"
 - **Optional**: "Where OAuth is unavailable, the system shall offer email login"
 
-### Key Features
-
-**Stage 1 (Current)**:
-
-- ✅ **Type-Safe**: Zod schemas enforce correctness at write-time
-- ✅ **Event Sourcing**: Complete audit trail of all changes
-- ✅ **Deterministic IDs**: Collision-resistant nanoid-based IDs
-- ✅ **Safe Writes**: Atomic write operations with file locking
-- 🚧 **Natural Language**: Claude integration for semantic parsing (in progress)
-
-**Future Stages**:
-
-- 📅 Stage 2: Component design and architecture decisions
-- 📅 Stage 3: Task generation with TDD enforcement
-
-## Current Status
-
-**Version**: 2.0.0-alpha
-**Stage**: 1 - Specifications (In Progress)
-**Stability**: Development (not production-ready)
-
-### What's Working
-
-- Foundation utilities (AtomicWriter, FileLock, InputValidator, ErrorHandler)
-- Zod schemas for all specification entities
-- ID generation with collision resistance
-- Comprehensive test suite (171 passing tests)
-- CI/CD pipeline with GitHub Actions
-
-### What's Next
-
-See **[TODO.md](./TODO.md)** for:
-
-- Current phase progress
-- Known issues
-- Upcoming features
-- Risk mitigations
-
 ## Documentation
 
+- **[TODO.md](./TODO.md)** - Development roadmap and current priorities
 - **[SPEC.md](./SPEC.md)** - Complete technical specification
-- **[TODO.md](./TODO.md)** - Development roadmap and known issues
 - **[TASKS.md](./TASKS.md)** - Available development tasks
-- **[docs/system/](./docs/system/)** - Implementation details
 
-## Target Users
-
-xdd is designed for:
-
-- Solo developers and small teams (2-3 people)
-- Internal tools and small-scale applications
-- Single-agent AI workflows
-- Local filesystem operations
-
-**Not suited for**:
-
-- Large teams requiring multi-user collaboration
-- Distributed systems across network filesystems
-- Enterprise-scale requirement management
-
-## Philosophy
+## Architecture Principles
 
 **Write-Time Validation**: TypeScript + Zod enforce correctness before data touches disk.
 
-**Event Sourcing**: Every change is tracked. Requirements are append-only with periodic snapshots.
+**Event Sourcing**: Every change tracked as immutable events with periodic snapshots.
 
-**Single Command UX**: Natural language in, structured YAML out.
+**Atomic Transactions**: Copy-on-write with true file copying (not hard links) ensures complete transaction isolation. All modifications stay in temp directory until atomic commit. Rollback is guaranteed safe. See [ADR-001](docs/architecture/ADR-001-atomic-transactions-true-copy.md) for design rationale.
 
-**Computed Traceability**: No forward links. Relationships computed from backlinks on demand.
+**Single Command UX**: Natural language in, structured YAML out (when complete).
 
 **YAML as Database**: Text-based artifacts are the source of truth.
 
+**Target**: Solo developers and small teams on local filesystems.
+
 ## Contributing
 
-See **[SPEC.md](./SPEC.md)** for:
-
-- Architecture principles
-- Data models
-- Critical implementation patterns
-- Development phases
+Start with **[TODO.md](./TODO.md)** to see current priorities. See **[SPEC.md](./SPEC.md)** for architecture details.
 
 ## License
 

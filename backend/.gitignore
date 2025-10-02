@@ -1,0 +1,9 @@
+coverage.out
+*.test
+.env
+
+
+# Commands
+record-fixtures
+verify-fixtures
+xdd

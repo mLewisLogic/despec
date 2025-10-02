@@ -1,0 +1,46 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - ineffassign
+    - godot
+    - misspell
+    - unparam
+    - prealloc
+    - unconvert
+  exclusions:
+    rules:
+      - path: '(.+)_test\.go'
+        linters:
+          - errcheck
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  godot:
+    capital: false
+
+formatters-settings:
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: xdd
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0

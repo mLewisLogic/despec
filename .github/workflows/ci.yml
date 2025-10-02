@@ -3,6 +3,9 @@ name: CI
 on:
   push:
 
+env:
+  MISE_ENV: ci
+
 jobs:
   typescript-typecheck:
     name: TypeScript Type Check
@@ -74,6 +77,22 @@ jobs:
       - name: TOML lint
         run: mise run toml:lint:nofix
 
+  shell-lint:
+    name: Shell Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Shell lint
+        run: mise run shell:lint:nofix
+
   test-full:
     name: Test - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -144,3 +163,51 @@ jobs:
       - name: Run security audit
         run: bun audit || true
         continue-on-error: true
+
+  go-format:
+    name: Go Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check Go formatting
+        run: mise run go:format:nofix
+
+  go-lint:
+    name: Go Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lint Go code
+        run: mise run go:lint:nofix
+
+  go-test:
+    name: Go Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Go tests
+        run: mise run go:test

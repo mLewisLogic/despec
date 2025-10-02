@@ -1,13 +1,22 @@
 [tools]
-bun = "latest"
+age = "latest"
 biome = "latest"
+bun = "latest"
+go = "latest"
+golangci-lint = "latest"
 lefthook = "latest"
 markdownlint-cli2 = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+sops = "latest"
 taplo = "latest"
 usage = "latest"
 
 [settings]
 jobs = 24
+
+[env]
+APP_NAME = "xdd"
 
 # =============================================================================
 # Development
@@ -25,6 +34,33 @@ description = "Run Bun"
 description = "Install dependencies"
 run = "bun install"
 
+[tasks.setup]
+description = "Initial project setup"
+depends = ["install", "secrets:init"]
+run = "echo '✅ Setup complete!'"
+
+# =============================================================================
+# Linting - Go
+# =============================================================================
+[tasks."go:format:nofix"]
+run = "golangci-lint fmt --diff-colored"
+dir = "backend"
+description = "Check Go code formatting"
+
+[tasks."go:format:fix"]
+run = "golangci-lint fmt"
+dir = "backend"
+description = "Format Go code"
+
+[tasks."go:lint:nofix"]
+run = "golangci-lint run"
+dir = "backend"
+description = "Lint Go code"
+
+[tasks."go:lint:fix"]
+run = "golangci-lint run --fix"
+dir = "backend"
+description = "Lint and fix Go code"
 
 # =============================================================================
 # Linting - TypeScript
@@ -34,13 +70,16 @@ run = "bun install"
 run = "bun x tsc --noEmit"
 description = "Run TypeScript type checking"
 
+# =============================================================================
+# Linting - TypeScript / JSON (Biome)
+# =============================================================================
 [tasks."biome:lint:nofix"]
 run = "biome check"
-description = "Lint TypeScript files"
+description = "Lint TypeScript and JSON files"
 
 [tasks."biome:lint:fix"]
 run = "biome check --fix"
-description = "Lint and fix TypeScript files"
+description = "Lint and fix TypeScript and JSON files"
 
 # =============================================================================
 # Linting - Markdown
@@ -68,16 +107,16 @@ description = "Format TOML files"
 
 
 # =============================================================================
-# Linting - JSON
+# Linting - Shell Scripts
 # =============================================================================
 
-[tasks."json:lint:nofix"]
-run = "biome check"
-description = "Lint JSON files"
+[tasks."shell:lint:nofix"]
+run = "./scripts/shell-lint.sh --check"
+description = "Check shell files (without fixing)"
 
-[tasks."json:lint:fix"]
-run = "biome check --fix"
-description = "Lint and fix JSON files"
+[tasks."shell:lint:fix"]
+run = "./scripts/shell-lint.sh"
+description = "Format and lint shell files"
 
 
 # =============================================================================
@@ -87,10 +126,12 @@ description = "Lint and fix JSON files"
 [tasks."lint:all:nofix"]
 depends = [
   "typescript:typecheck",
-  "typescript:lint:nofix",
+  "biome:lint:nofix",
   "markdown:lint:nofix",
   "toml:lint:nofix",
-  "json:lint:nofix",
+  "shell:lint:nofix",
+  "go:format:nofix",
+  "go:lint:nofix",
 ]
 description = "Run all linters (check only, no fixes)"
 run = "echo '✅ All linting checks passed!'"
@@ -98,10 +139,12 @@ run = "echo '✅ All linting checks passed!'"
 [tasks."lint:all:fix"]
 depends = [
   "typescript:typecheck",
-  "typescript:lint:fix",
+  "biome:lint:fix",
   "markdown:lint:fix",
   "toml:lint:fix",
-  "json:lint:fix",
+  "shell:lint:fix",
+  "go:format:fix",
+  "go:lint:fix",
 ]
 description = "Run all linters with fixes"
 run = "echo '✅ All linting checks passed!'"
@@ -166,3 +209,68 @@ description = "Clean all build artifacts"
 [tasks.doctoc]
 run = "bunx doctoc --notitle --stdout"
 description = "Generate table of contents for markdown"
+
+# =============================================================================
+# Backend Tasks
+# =============================================================================
+
+# Testing
+[tasks."go:test"]
+run = "go test ./..."
+dir = "backend"
+description = "Run all Go tests"
+
+[tasks."go:test:coverage"]
+run = "go test -coverprofile=coverage.out ./..."
+dir = "backend"
+description = "Run tests with coverage"
+
+# Building
+[tasks."go:build"]
+run = "go build -o ../dist/xdd ./cmd/xdd"
+dir = "backend"
+description = "Build CLI binary to dist/xdd"
+
+[tasks."go:install"]
+run = "go install ./cmd/xdd"
+dir = "backend"
+depends = ["go:build"]
+description = "Install xdd CLI to GOPATH"
+
+[tasks."go:run"]
+run = "go run ./cmd/xdd"
+dir = "backend"
+depends = ["go:build"]
+description = "Run CLI directly with go run"
+
+# =============================================================================
+# Secrets Management
+# =============================================================================
+
+[tasks."secrets"]
+description = "secrets management"
+run = "./scripts/secrets.sh"
+
+[tasks."secrets:init"]
+description = "Initialize secrets (creates key, .sops.yaml, and encrypted file)"
+run = "./scripts/secrets.sh init"
+
+[tasks."secrets:edit"]
+description = "Edit secrets file"
+run = "./scripts/secrets.sh edit"
+
+[tasks."secrets:set"]
+description = "Set a secret value (usage: mise run secrets:set KEY_NAME)"
+run = "./scripts/secrets.sh set"
+
+[tasks."secrets:get"]
+description = "Get a secret value (usage: mise run secrets:get KEY_NAME)"
+run = "./scripts/secrets.sh get"
+
+[tasks."secrets:list"]
+description = "List all secret keys"
+run = "./scripts/secrets.sh list"
+
+[tasks."secrets:generate-key"]
+description = "Generate new age key (for key rotation)"
+run = "./scripts/secrets.sh generate-key"

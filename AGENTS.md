@@ -2,9 +2,10 @@
 
 read:
 - @README.md
-- @SPEC.md
-- @TODO.md
 - @.mise.toml
+- @SPEC.md
+- @DESIGN.md
+- @research/ (technical research documents)
 
 ## Tasks
 Prefer running tasks with `mise run ...` (see @.mise.toml) instead of raw executing  like `tsc --noEmit`.
